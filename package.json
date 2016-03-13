@@ -4,7 +4,7 @@
   "description": "lexema helpdesk backend",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
@@ -21,6 +21,12 @@
     "eslint": "^2.3.0",
     "gulp": "^3.9.1",
     "gulp-eslint": "^2.0.0",
+    "mocha": "^2.4.5",
     "node-inspector": "^0.12.7"
+  },
+  "dependencies": {
+    "mysql": "^2.10.2",
+    "sequelize": "^3.19.3",
+    "sequelize-cli": "^2.3.1"
   }
 }
