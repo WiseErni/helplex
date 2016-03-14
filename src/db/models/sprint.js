@@ -4,11 +4,14 @@ module.exports = function(sequelize, DataTypes) {
     title: DataTypes.STRING,
     bdate: DataTypes.DATE,
     edate: DataTypes.DATE,
+    description: DataTypes.STRING,
+    resource: DataTypes.DECIMAL,
+    factor: DataTypes.DECIMAL,
     staffed: DataTypes.BOOLEAN
   }, {
     classMethods: {
-      associate: function(/*models*/) {
-        // associations can be defined here
+      associate: function(models) {
+
       }
     }
   });

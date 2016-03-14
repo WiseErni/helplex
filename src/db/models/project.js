@@ -1,12 +1,13 @@
 'use strict';
 module.exports = function(sequelize, DataTypes) {
   var Project = sequelize.define('Project', {
-    title: DataTypes.STRING,
-    description: DataTypes.STRING
+    title: DataTypes.STRING
   }, {
     classMethods: {
-      associate: function(/*models*/) {
-        // associations can be defined here
+      associate: function(models) {
+        Project.hasMany(models.Sprint, {
+          foreignKey: 'project_id'
+        });
       }
     }
   });

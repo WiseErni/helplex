@@ -4,7 +4,8 @@
   "description": "lexema helpdesk backend",
   "main": "index.js",
   "scripts": {
-    "test": "mocha"
+    "test": "NODE_ENV=test mocha",
+    "test-w": "set NODE_ENV=test&&mocha"
   },
   "repository": {
     "type": "git",
@@ -27,6 +28,7 @@
   "dependencies": {
     "mysql": "^2.10.2",
     "sequelize": "^3.19.3",
-    "sequelize-cli": "^2.3.1"
+    "sequelize-cli": "^2.3.1",
+    "tedious": "^1.13.2"
   }
 }
