@@ -11,7 +11,24 @@ module.exports = function(sequelize, DataTypes) {
   }, {
     classMethods: {
       associate: function(models) {
+        Sprint.hasMany(models.Contract, {
+          foreignKey: {
+            name: 'sprint_id',
+            allowNull: false
+          },
+          onDelete: 'CASCADE'
+        });
 
+        Sprint.hasMany(models.Ticket, {
+          constraints: false
+        });
+
+        Sprint.belongsTo(models.User, {
+          foreignKey: {
+            name: 'creator_id',
+            allowNull: true
+          }
+        });
       }
     }
   });

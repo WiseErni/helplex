@@ -6,7 +6,26 @@ module.exports = function(sequelize, DataTypes) {
     classMethods: {
       associate: function(models) {
         Project.hasMany(models.Sprint, {
-          foreignKey: 'project_id'
+          foreignKey: {
+            name: 'project_id',
+            allowNull: false
+          },
+          onDelete: 'CASCADE'
+        });
+
+        Project.hasMany(models.Ticket, {
+          foreignKey: {
+            name: 'project_id',
+            allowNull: false
+          },
+          onDelete: 'CASCADE'
+        });
+
+        Project.belongsTo(models.User, {
+          foreignKey: {
+            name: 'creator_id',
+            allowNull: true
+          }
         });
       }
     }

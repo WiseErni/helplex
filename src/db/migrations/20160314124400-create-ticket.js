@@ -20,6 +20,9 @@ module.exports = {
       status: {
         type: Sequelize.STRING
       },
+      area: {
+        type: Sequelize.STRING
+      },
       priority: {
         type: Sequelize.INTEGER
       },
@@ -36,7 +39,7 @@ module.exports = {
       }
     });
   },
-  down: function(queryInterface, Sequelize) {
+  down: function(queryInterface) {
     return queryInterface.dropTable('Tickets');
   }
 };
