@@ -1,0 +1,131 @@
+[
+  {
+    "model": "Sprint",
+    "data": {
+      "id": 1,
+      "title": "1-1",
+      "bdate": "2016-01-11",
+      "edate": "2016-01-22",
+      "resource": 10,
+      "factor": 65,
+      "staffed": true,
+      "project_id": 1,
+      "creator_id": 1
+    }
+  }, {
+    "model": "Sprint",
+    "data": {
+      "id": 2,
+      "title": "1-2",
+      "bdate": "2016-01-25",
+      "edate": "2016-02-05",
+      "resource": 10,
+      "factor": 65,
+      "staffed": true,
+      "project_id": 1,
+      "creator_id": 1
+    }
+  }, {
+    "model": "Sprint",
+    "data": {
+      "id": 3,
+      "title": "1-3",
+      "bdate": "2016-02-08",
+      "edate": "2016-02-19",
+      "resource": 10,
+      "factor": 65,
+      "staffed": true,
+      "project_id": 1,
+      "creator_id": 1
+    }
+  }, {
+    "model": "Sprint",
+    "data": {
+      "id": 4,
+      "title": "1-4",
+      "bdate": "2016-02-24",
+      "edate": "2016-03-04",
+      "description": "короткий спринт (23 февраля)",
+      "resource": 8,
+      "factor": 65,
+      "staffed": true,
+      "project_id": 1,
+      "creator_id": 1
+    }
+  }, {
+    "model": "Sprint",
+    "data": {
+      "id": 5,
+      "title": "1-5",
+      "bdate": "2016-03-09",
+      "edate": "2016-03-18",
+      "description": "короткий спринт (8 марта)",
+      "resource": 8,
+      "factor": 65,
+      "staffed": false,
+      "project_id": 1,
+      "creator_id": 1
+    }
+  }, {
+    "model": "Sprint",
+    "data": {
+      "id": 6,
+      "title": "1-6",
+      "bdate": "2016-03-21",
+      "edate": "2016-04-01",
+      "factor": 65,
+      "staffed": false,
+      "project_id": 1,
+      "creator_id": 1
+    }
+  }, {
+    "model": "Sprint",
+    "data": {
+      "id": 7,
+      "title": "1-7",
+      "bdate": "2016-04-04",
+      "edate": "2016-04-15",
+      "factor": 65,
+      "staffed": false,
+      "project_id": 1,
+      "creator_id": 1
+    }
+  }, {
+    "model": "Sprint",
+    "data": {
+      "id": 8,
+      "title": "1-8",
+      "bdate": "2016-04-18",
+      "edate": "2016-04-29",
+      "factor": 65,
+      "staffed": false,
+      "project_id": 1,
+      "creator_id": 1
+    }
+  }, {
+    "model": "Sprint",
+    "data": {
+      "id": 9,
+      "title": "1-9",
+      "bdate": "2016-05-02",
+      "edate": "2016-05-13",
+      "description": "короткий спринт (майские праздники)",
+      "factor": 65,
+      "staffed": false,
+      "project_id": 1,
+      "creator_id": 1
+    }
+  }, {
+    "model": "Sprint",
+    "data": {
+      "id": 10,
+      "title": "1-10",
+      "bdate": "2016-05-16",
+      "edate": "2016-05-27",
+      "factor": 65,
+      "staffed": false,
+      "project_id": 1,
+      "creator_id": 1
+    }
+  }
+]

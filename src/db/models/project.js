@@ -6,6 +6,7 @@ module.exports = function(sequelize, DataTypes) {
     classMethods: {
       associate: function(models) {
         Project.hasMany(models.Sprint, {
+          as: 'sprints',
           foreignKey: {
             name: 'project_id',
             allowNull: false
@@ -14,6 +15,7 @@ module.exports = function(sequelize, DataTypes) {
         });
 
         Project.hasMany(models.Ticket, {
+          as: 'tickets',
           foreignKey: {
             name: 'project_id',
             allowNull: false
@@ -22,6 +24,7 @@ module.exports = function(sequelize, DataTypes) {
         });
 
         Project.belongsTo(models.User, {
+          as: 'creator',
           foreignKey: {
             name: 'creator_id',
             allowNull: true

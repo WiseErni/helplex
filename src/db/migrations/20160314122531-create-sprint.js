@@ -21,10 +21,10 @@ module.exports = {
         type: Sequelize.STRING
       },
       resource: {
-        type: Sequelize.DECIMAL
+        type: Sequelize.INTEGER
       },
       factor: {
-        type: Sequelize.DECIMAL
+        type: Sequelize.INTEGER
       },
       staffed: {
         type: Sequelize.BOOLEAN

@@ -1,0 +1,24 @@
+[
+  {
+    "model": "Project",
+    "data": {
+      "id": 1,
+      "title": "Project 1",
+      "creator_id": 1
+    }
+  }, {
+    "model": "Project",
+    "data": {
+      "id": 2,
+      "title": "test test",
+      "creator_id": 8
+    }
+  }, {
+    "model": "Project",
+    "data": {
+      "id": 3,
+      "title": "empty project",
+      "creator_id": 8
+    }
+  }
+]

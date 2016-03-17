@@ -2,19 +2,12 @@
 module.exports = function(sequelize, DataTypes) {
   var Ticket = sequelize.define('Ticket', {
     title: DataTypes.STRING,
-    description: DataTypes.STRING,
+    description: DataTypes.TEXT,
     raiting: DataTypes.DECIMAL,
     status: DataTypes.STRING,
     area: DataTypes.STRING,
     priority: DataTypes.INTEGER,
-    taken: DataTypes.BOOLEAN,
-    sprint_id: {
-      type: DataTypes.INTEGER,
-      references: {
-        model: "sprints",
-        key: "id"
-      }
-    }
+    taken: DataTypes.BOOLEAN
   }, {
     classMethods: {
       associate: function(models) {

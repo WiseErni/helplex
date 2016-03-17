@@ -1,0 +1,75 @@
+[
+  {
+    "model": "User",
+    "data": {
+      "id": 1,
+      "name": "admin",
+      "email": "admin@server.com",
+      "role": "admin"
+    }
+  }, {
+    "model": "User",
+    "data": {
+      "id": 2,
+      "name": "Айрат Галямов",
+      "email": "galyamov@server.com",
+      "role": "developer"
+    }
+  }, {
+    "model": "User",
+    "data": {
+      "id": 3,
+      "name": "Юлия Кудинова",
+      "email": "julia@server.com",
+      "role": "manager"
+    }
+  }, {
+    "model": "User",
+    "data": {
+      "id": 4,
+      "name": "Ильдар Набиуллин",
+      "email": "nabiullin@server.com",
+      "role": "developer"
+    }
+  }, {
+    "model": "User",
+    "data": {
+      "id": 5,
+      "name": "Илья Першин",
+      "email": "pershin@server.com",
+      "role": "developer"
+    }
+  }, {
+    "model": "User",
+    "data": {
+      "id": 6,
+      "name": "Ксения Имамутдинова",
+      "email": "xenia@server.com",
+      "role": "developer"
+    }
+  }, {
+    "model": "User",
+    "data": {
+      "id": 7,
+      "name": "Андрей Туманов",
+      "email": "tumanov@server.com",
+      "role": "developer"
+    }
+  }, {
+    "model": "User",
+    "data": {
+      "id": 8,
+      "name": "Роман Баландин",
+      "email": "balandin@server.com",
+      "role": "developer"
+    }
+  }, {
+    "model": "User",
+    "data": {
+      "id": 9,
+      "name": "Булат Муртазин",
+      "email": "murtasin@server.com",
+      "role": "developer"
+    }
+  }
+]
