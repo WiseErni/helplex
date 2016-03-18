@@ -160,8 +160,73 @@ router.post('/data/save/user/:id', (req, res) => {
     where: {
       id: req.params.id
     }
-  }).then((user) => {
-    res.json(user);
+  }).then((id) => {
+    res.json(id);
+  });
+});
+
+router.post('/data/save/project/:id', (req, res) => {
+  models.Project.update(req.body, {
+    where: {
+      id: req.params.id
+    }
+  }).then(() => {
+    res.json();
+  });
+});
+
+router.post('/data/save/sprint/:id', (req, res) => {
+  models.Sprint.update(req.body.root || {}, {
+    where: {
+      id: req.params.id
+    }
+  }).then(() => {
+    let ids = [];
+    let promises = [];
+
+    if (req.body.tickets.removed) {
+      promises.push(models.Ticket.destroy({
+        where: {
+          id: [req.body.tickets.removed]
+        }
+      }));
+    }
+
+    if (req.body.tickets.added) {
+      promises.push(Promise.all(req.body.tickets.added.map((data, index) => {
+        return models.Ticket.create(data).then((ticket) => {
+          ids[index] = ticket.id;
+        });
+      })));
+    }
+
+    if (req.body.tickets.updated) {
+      promises.push(Promise.all(req.body.tickets.updated.map((data) => {
+        return models.Ticket.update(data, {
+          where: {
+            id: data.id
+          }
+        });
+      })));
+    }
+
+    Promise.all(promises).then(() => {
+      res.json({
+        tickets: {
+          added: ids
+        }
+      });
+    });
+  });
+});
+
+router.post('/data/save/ticket/:id', (req, res) => {
+  models.Ticket.update(req.body, {
+    where: {
+      id: req.params.id
+    }
+  }).then((id) => {
+    res.json(id);
   });
 });
 
