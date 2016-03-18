@@ -135,8 +135,8 @@ module.exports = {
   },
 
   down: (queryInterface) => {
-    return queryInterface.sequelize
-      .query(
+    return Promise.all([
+      queryInterface.sequelize.query(
 `ALTER TABLE Projects DROP CONSTRAINT FK__Projects__Users__creator_id
 
 ALTER TABLE Sprints DROP CONSTRAINT FK__Sprints__Users__creator_id
@@ -158,6 +158,51 @@ ALTER TABLE Tickets DROP CONSTRAINT FK__Tickets__Users__tester_id
 ALTER TABLE Contracts DROP CONSTRAINT FK__Contracts__Sprints__sprint_id
 
 ALTER TABLE Contracts DROP CONSTRAINT FK__Contracts__Users__user_id
-`);
+`),
+      queryInterface.removeColumn(
+        'Projects',
+        'creator_id'
+      ),
+      queryInterface.removeColumn(
+        'Sprints',
+        'creator_id'
+      ),
+      queryInterface.removeColumn(
+        'Sprints',
+        'project_id'
+      ),
+      queryInterface.removeColumn(
+        'Tickets',
+        'project_id'
+      ),
+      queryInterface.removeColumn(
+        'Tickets',
+        'sprint_id'
+      ),
+      queryInterface.removeColumn(
+        'Tickets',
+        'creator_id'
+      ),
+      queryInterface.removeColumn(
+        'Tickets',
+        'developer_id'
+      ),
+      queryInterface.removeColumn(
+        'Tickets',
+        'reviewer_id'
+      ),
+      queryInterface.removeColumn(
+        'Tickets',
+        'tester_id'
+      ),
+      queryInterface.removeColumn(
+        'Contracts',
+        'sprint_id'
+      ),
+      queryInterface.removeColumn(
+        'Contracts',
+        'user_id'
+      )
+    ]);
   }
 };

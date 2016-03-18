@@ -1,10 +1,11 @@
 {
   "development": {
     "username": "sa",
-    "password": "sql",
+    "password": "master",
     "database": "lex",
     "host": "127.0.0.1",
-    "dialect": "mssql"
+    "dialect": "mysql",
+    "logging": false
   },
   "test": {
     "username": "sa",

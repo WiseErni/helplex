@@ -12,12 +12,15 @@ gulp.task('default', () => {
 .task('setup-dev', () => {
   process.env.NODE_ENV = 'development';
   const models = require('./src/db/models');
+  const sequelize_fixtures = require('sequelize-fixtures');
 
   return models.sequelize.sync({
     force: true
   }).then(() => {
-    console.log('sync complete');
-    process.exit();
+    sequelize_fixtures.loadFile('./test/fixtures/**/*', models).then(function(){
+      console.log('sync complete');
+      process.exit();
+    });
   });
 }).task('setup-test', () => {
   process.env.NODE_ENV = 'test';

@@ -230,4 +230,29 @@ router.post('/data/save/ticket/:id', (req, res) => {
   });
 });
 
+router.get('/data/load/test/', (req, res) => {
+  models.Project.find({
+    where: {
+      id: 1
+    },
+    include: [
+      {
+        model: models.Sprint,
+        as: 'sprints'
+      }, {
+        model: models.Ticket,
+        as: 'tickets',
+        include: [
+          {
+            model: models.User,
+            as: 'creator'
+          }
+        ]
+      }
+    ]
+  }).then((project) => {
+    res.json(project);
+  });
+});
+
 module.exports = router;
