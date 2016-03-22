@@ -1,8 +1,8 @@
 {
   "development": {
     "username": "sa",
-    "password": "master",
-    "database": "lex",
+    "password": "sql",
+    "database": "lex_test",
     "host": "127.0.0.1",
     "dialect": "mysql",
     "logging": false
@@ -12,7 +12,7 @@
     "password": "sql",
     "database": "lex_test",
     "host": "127.0.0.1",
-    "dialect": "mssql",
+    "dialect": "mysql",
     "logging": false
   },
   "production": {

@@ -34,7 +34,7 @@ gulp.task('default', () => {
       migrationsPath: './src/db/migrations',
       truncate: false
     }));
-}).task('test', ['setup-test'], () => {
+}).task('test', ['setup-dev'], () => {
   return gulp.src('./test/**/*.js', {
     read: false
   })
