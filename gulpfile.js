@@ -17,10 +17,7 @@ gulp.task('default', () => {
   return models.sequelize.sync({
     force: true
   }).then(() => {
-    sequelize_fixtures.loadFile('./test/fixtures/**/*', models).then(function(){
-      console.log('sync complete');
-      process.exit();
-    });
+    return sequelize_fixtures.loadFile('./test/fixtures/**/*', models);
   });
 }).task('setup-test', () => {
   process.env.NODE_ENV = 'test';
