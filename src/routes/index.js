@@ -193,11 +193,17 @@ router.post('/data/save/sprint/:id', (req, res) => {
     }
 
     if (req.body.tickets.added) {
-      promises.push(Promise.all(req.body.tickets.added.map((data, index) => {
-        return models.Ticket.create(data).then((ticket) => {
-          ids[index] = ticket.id;
-        });
-      })));
+      let toCreate = req.body.tickets.added.map((data, index) => {
+        return () => {
+            return models.Ticket.create(data).then((ticket) => {
+            ids[index] = ticket.id;
+          });
+        };
+      });
+
+      promises.push(toCreate.reduce((a, b) => {
+        return a.then(b);
+      }, Promise.resolve()));
     }
 
     if (req.body.tickets.updated) {
@@ -227,31 +233,6 @@ router.post('/data/save/ticket/:id', (req, res) => {
     }
   }).then((id) => {
     res.json(id);
-  });
-});
-
-router.get('/data/load/test/', (req, res) => {
-  models.Project.find({
-    where: {
-      id: 1
-    },
-    include: [
-      {
-        model: models.Sprint,
-        as: 'sprints'
-      }, {
-        model: models.Ticket,
-        as: 'tickets',
-        include: [
-          {
-            model: models.User,
-            as: 'creator'
-          }
-        ]
-      }
-    ]
-  }).then((project) => {
-    res.json(project);
   });
 });
 
