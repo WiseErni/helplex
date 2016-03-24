@@ -1,9 +1,19 @@
 'use strict';
 
 const express = require('express');
+const normalizr = require('normalizr');
 const models = require('../db/models');
 
 const router = express.Router();
+
+const normalize = (data, schema) => {
+  return normalizr.normalize(data, schema, {
+    assignEntity: (obj, key, val) => {
+      obj[key] = val;
+      delete obj[key + '_id'];
+    }
+  });
+};
 
 router.get('/', (req, res) => {
   res.writeHead(200, {
@@ -19,22 +29,45 @@ router.get('/data/load/projects', (req, res, next) => {
       as: 'creator'
     }
   }).then((projects) => {
-    res.json(projects);
+    const project = new normalizr.Schema('projects');
+    const user = new normalizr.Schema('users');
+    project.define({
+      creator: user
+    });
+
+    res.json(normalize(projects.map((x) => {
+      return x.toJSON();
+    }), normalizr.arrayOf(project)));
   }).catch(next);
 });
 
 router.get('/data/load/sprints', (req, res, next) => {
+  const sprint = new normalizr.Schema('sprints');
+  const user = new normalizr.Schema('users');
+  sprint.define({
+    creator: user
+  });
+
   models.Sprint.findAll({
     include: {
       model: models.User,
       as: 'creator'
     }
-  }).then((sprints) => {
-    res.json(sprints);
+  }).then((result) => {
+    res.json(normalize(result.map((x) => {
+      return x.toJSON();
+    }), normalizr.arrayOf(sprint)));
   }).catch(next);
 });
 
 router.get('/data/load/tickets', (req, res, next) => {
+  const ticket = new normalizr.Schema('tickets');
+  const user = new normalizr.Schema('users');
+  ticket.define({
+    creator: user,
+    developer: user
+  });
+
   models.Ticket.findAll({
     include: [
       {
@@ -45,19 +78,35 @@ router.get('/data/load/tickets', (req, res, next) => {
         as: 'developer'
       }
     ]
-  }).then((tickets) => {
-    res.json(tickets);
+  }).then((result) => {
+    res.json(normalize(result.map((x) => {
+      return x.toJSON();
+    }), normalizr.arrayOf(ticket)));
   }).catch(next);
 });
 
 router.get('/data/load/users', (req, res, next) => {
+  const user = new normalizr.Schema('users');
   models.User.findAll()
     .then((users) => {
-      res.json(users);
+      res.json(normalize(users.map((x) => {
+        return x.toJSON();
+      }), normalizr.arrayOf(user)));
     }).catch(next);
 });
 
 router.get('/data/load/project/:id', (req, res, next) => {
+  const project = new normalizr.Schema('projects');
+  const sprint = new normalizr.Schema('sprints');
+  const user = new normalizr.Schema('users');
+  project.define({
+    sprints: normalizr.arrayOf(sprint),
+    creator: user
+  });
+  sprint.define({
+    creator: user
+  });
+
   models.Project.find({
     where: {
       id: req.params.id
@@ -71,12 +120,24 @@ router.get('/data/load/project/:id', (req, res, next) => {
         as: 'creator'
       }
     ]
-  }).then((project) => {
-    res.json(project);
+  }).then((result) => {
+    res.json(normalize(result.toJSON(), project));
   }).catch(next);
 });
 
 router.get('/data/load/sprint/:id', (req, res, next) => {
+  const sprint = new normalizr.Schema('sprints');
+  const ticket = new normalizr.Schema('tickets');
+  const user = new normalizr.Schema('users');
+  sprint.define({
+    tickets: normalizr.arrayOf(ticket),
+    creator: user
+  });
+  ticket.define({
+    creator: user,
+    developer: user
+  });
+
   models.Sprint.find({
     where: {
       id: req.params.id
@@ -84,18 +145,34 @@ router.get('/data/load/sprint/:id', (req, res, next) => {
     include: [
       {
         model: models.Ticket,
-        as: 'tickets'
+        as: 'tickets',
+        include: [
+          {
+            model: models.User,
+            as: 'creator'
+          }, {
+            model: models.User,
+            as: 'developer'
+          }
+        ]
       }, {
         model: models.User,
         as: 'creator'
       }
     ]
-  }).then((sprint) => {
-    res.json(sprint);
+  }).then((result) => {
+    res.json(normalize(result.toJSON(), sprint));
   }).catch(next);
 });
 
 router.get('/data/load/ticket/:id', (req, res, next) => {
+  const ticket = new normalizr.Schema('tickets');
+  const user = new normalizr.Schema('users');
+  ticket.define({
+    creator: user,
+    developer: user
+  });
+
   models.Ticket.find({
     where: {
       id: req.params.id
@@ -109,18 +186,19 @@ router.get('/data/load/ticket/:id', (req, res, next) => {
         as: 'developer'
       }
     ]
-  }).then((ticket) => {
-    res.json(ticket);
+  }).then((result) => {
+    res.json(normalize(result.toJSON(), ticket));
   }).catch(next);
 });
 
 router.get('/data/load/user/:id', (req, res, next) => {
+  const user = new normalizr.Schema('users');
   models.User.find({
     where: {
       id: req.params.id
     }
-  }).then((user) => {
-    res.json(user);
+  }).then((result) => {
+    res.json(normalize(result.toJSON(), user));
   }).catch(next);
 });
 

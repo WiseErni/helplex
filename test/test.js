@@ -28,9 +28,9 @@ describe('loading', function () {
       .get('/data/load/users/')
       .then((res) => {
         res.status.should.be.equal(200);
-        res.body.length.should.be.equal(9);
-        res.body[0].name.should.be.equal('admin');
-        res.body[4].name.should.be.equal('Илья Першин');
+        Object.keys(res.body.entities.users).length.should.be.equal(9);
+        res.body.entities.users['1'].name.should.be.equal('admin');
+        res.body.entities.users['5'].name.should.be.equal('Илья Першин');
       });
   });
 
@@ -39,8 +39,8 @@ describe('loading', function () {
       .get('/data/load/user/3')
       .then((res) => {
         res.status.should.be.equal(200);
-        res.body.role.should.be.equal('manager');
-        res.body.email.should.be.equal('julia@server.com');
+        res.body.entities.users['3'].role.should.be.equal('manager');
+        res.body.entities.users['3'].email.should.be.equal('julia@server.com');
       });
   });
 
@@ -49,11 +49,16 @@ describe('loading', function () {
       .get('/data/load/projects')
       .then((res) => {
         res.status.should.be.equal(200);
-        res.body.length.should.be.equal(3);
-        res.body[0].title.should.be.equal('Project 1');
-        res.body[1].title.should.be.equal('test test');
-        res.body[2].title.should.be.equal('empty project');
-        res.body[0].creator.name.should.be.equal('admin');
+        Object.keys(res.body.entities.projects).length.should.be.equal(3);
+        Object.keys(res.body.entities.users).length.should.be.equal(2);
+        res.body.entities.projects['1'].title.should.be.equal('Project 1');
+        res.body.entities.projects['1'].creator.should.be.equal(1);
+        res.body.entities.projects['2'].title.should.be.equal('test test');
+        res.body.entities.projects['2'].creator.should.be.equal(8);
+        res.body.entities.projects['3'].title.should.be.equal('empty project');
+        res.body.entities.projects['3'].creator.should.be.equal(8);
+        res.body.entities.users['1'].name.should.be.equal('admin');
+        res.body.entities.users['8'].name.should.be.equal('Роман Баландин');
       });
   });
 
@@ -62,11 +67,12 @@ describe('loading', function () {
       .get('/data/load/project/1')
       .then((res) => {
         res.status.should.be.equal(200);
-        res.body.title.should.be.ok();
-        res.body.title.should.be.equal('Project 1');
-        res.body.sprints.length.should.be.equal(10);
-        res.body.sprints[0].title.should.be.equal('1-1');
-        res.body.creator.name.should.be.equal('admin');
+        res.body.entities.projects['1'].title.should.be.ok();
+        res.body.entities.projects['1'].title.should.be.equal('Project 1');
+        Object.keys(res.body.entities.sprints).length.should.be.equal(10);
+        res.body.entities.sprints['1'].title.should.be.equal('1-1');
+        Object.keys(res.body.entities.users).length.should.be.equal(1);
+        res.body.entities.users['1'].name.should.be.equal('admin');
       });
   });
 
@@ -75,10 +81,11 @@ describe('loading', function () {
       .get('/data/load/sprints/')
       .then((res) => {
         res.status.should.be.equal(200);
-        res.body.length.should.be.equal(10);
-        res.body[0].title.should.be.equal('1-1');
-        res.body[8].title.should.be.equal('1-9');
-        res.body[0].creator.name.should.be.equal('admin');
+        Object.keys(res.body.entities.sprints).length.should.be.equal(10);
+        res.body.entities.sprints['1'].title.should.be.equal('1-1');
+        res.body.entities.sprints['9'].title.should.be.equal('1-9');
+        Object.keys(res.body.entities.users).length.should.be.equal(1);
+        res.body.entities.users['1'].name.should.be.equal('admin');
       });
   });
 
@@ -87,11 +94,12 @@ describe('loading', function () {
       .get('/data/load/sprint/5')
       .then((res) => {
         res.status.should.be.equal(200);
-        res.body.title.should.be.equal('1-5');
-        res.body.description.should.be.equal('короткий спринт (8 марта)');
-        res.body.tickets.length.should.be.equal(12);
-        res.body.tickets[6].title.should.be.equal('Серая область в методе выделения в гриде Standard');
-        res.body.creator.name.should.be.equal('admin');
+        res.body.entities.sprints['5'].title.should.be.equal('1-5');
+        res.body.entities.sprints['5'].description.should.be.equal('короткий спринт (8 марта)');
+        Object.keys(res.body.entities.tickets).length.should.be.equal(12);
+        Object.keys(res.body.entities.users).length.should.be.equal(8);
+        res.body.entities.tickets['7'].title.should.be.equal('Серая область в методе выделения в гриде Standard');
+        res.body.entities.users['1'].name.should.be.equal('admin');
       });
   });
 
@@ -100,11 +108,12 @@ describe('loading', function () {
       .get('/data/load/tickets/')
       .then((res) => {
         res.status.should.be.equal(200);
-        res.body.length.should.be.equal(12);
-        res.body[0].title.should.be.equal('Разработка инструкции по разработке модуля на примере домашней бухгалтерии');
-        res.body[0].creator.name.should.be.equal('Айрат Галямов');
-        res.body[10].title.should.be.equal('Сброс сортировки в гриде реестров');
-        res.body[10].creator.email.should.be.equal('murtasin@server.com');
+        Object.keys(res.body.entities.tickets).length.should.be.equal(12);
+        Object.keys(res.body.entities.users).length.should.be.equal(7);
+        res.body.entities.tickets['1'].title.should.be.equal('Разработка инструкции по разработке модуля на примере домашней бухгалтерии');
+        res.body.entities.tickets['11'].title.should.be.equal('Сброс сортировки в гриде реестров');
+        res.body.entities.users['2'].name.should.be.equal('Айрат Галямов');
+        res.body.entities.users['9'].email.should.be.equal('murtasin@server.com');
       });
   });
 
@@ -113,9 +122,10 @@ describe('loading', function () {
       .get('/data/load/ticket/2')
       .then((res) => {
         res.status.should.be.equal(200);
-        res.body.title.should.be.equal('Перенос инструкций на внешнюю вики');
-        res.body.creator.name.should.be.equal('Айрат Галямов');
-        res.body.developer.name.should.be.equal('Айрат Галямов');
+        Object.keys(res.body.entities.tickets).length.should.be.equal(1);
+        Object.keys(res.body.entities.users).length.should.be.equal(1);
+        res.body.entities.tickets['2'].title.should.be.equal('Перенос инструкций на внешнюю вики');
+        res.body.entities.users['2'].name.should.be.equal('Айрат Галямов');
       });
   });
 });
