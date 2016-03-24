@@ -12,7 +12,7 @@ router.get('/', (req, res) => {
   res.end('running...\n');
 });
 
-router.get('/data/load/projects', (req, res) => {
+router.get('/data/load/projects', (req, res, next) => {
   models.Project.findAll({
     include: {
       model: models.User,
@@ -20,10 +20,10 @@ router.get('/data/load/projects', (req, res) => {
     }
   }).then((projects) => {
     res.json(projects);
-  });
+  }).catch(next);
 });
 
-router.get('/data/load/sprints', (req, res) => {
+router.get('/data/load/sprints', (req, res, next) => {
   models.Sprint.findAll({
     include: {
       model: models.User,
@@ -31,10 +31,10 @@ router.get('/data/load/sprints', (req, res) => {
     }
   }).then((sprints) => {
     res.json(sprints);
-  });
+  }).catch(next);
 });
 
-router.get('/data/load/tickets', (req, res) => {
+router.get('/data/load/tickets', (req, res, next) => {
   models.Ticket.findAll({
     include: [
       {
@@ -47,16 +47,17 @@ router.get('/data/load/tickets', (req, res) => {
     ]
   }).then((tickets) => {
     res.json(tickets);
-  });
+  }).catch(next);
 });
 
-router.get('/data/load/users', (req, res) => {
-  models.User.findAll().then((users) => {
-    res.json(users);
-  });
+router.get('/data/load/users', (req, res, next) => {
+  models.User.findAll()
+    .then((users) => {
+      res.json(users);
+    }).catch(next);
 });
 
-router.get('/data/load/project/:id', (req, res) => {
+router.get('/data/load/project/:id', (req, res, next) => {
   models.Project.find({
     where: {
       id: req.params.id
@@ -72,10 +73,10 @@ router.get('/data/load/project/:id', (req, res) => {
     ]
   }).then((project) => {
     res.json(project);
-  });
+  }).catch(next);
 });
 
-router.get('/data/load/sprint/:id', (req, res) => {
+router.get('/data/load/sprint/:id', (req, res, next) => {
   models.Sprint.find({
     where: {
       id: req.params.id
@@ -91,10 +92,10 @@ router.get('/data/load/sprint/:id', (req, res) => {
     ]
   }).then((sprint) => {
     res.json(sprint);
-  });
+  }).catch(next);
 });
 
-router.get('/data/load/ticket/:id', (req, res) => {
+router.get('/data/load/ticket/:id', (req, res, next) => {
   models.Ticket.find({
     where: {
       id: req.params.id
@@ -110,130 +111,227 @@ router.get('/data/load/ticket/:id', (req, res) => {
     ]
   }).then((ticket) => {
     res.json(ticket);
-  });
+  }).catch(next);
 });
 
-router.get('/data/load/user/:id', (req, res) => {
+router.get('/data/load/user/:id', (req, res, next) => {
   models.User.find({
     where: {
       id: req.params.id
     }
   }).then((user) => {
     res.json(user);
-  });
+  }).catch(next);
 });
 
-router.post('/data/save/user/', (req, res) => {
-  models.User.create(req.body).then((user) => {
+router.post('/data/save/user/', (req, res, next) => {
+  models.sequelize.transaction((t) => {
+    return models.User.create(req.body, {
+      transaction: t
+    });
+  }).then((user) => {
     res.json(user);
-  });
+  }).catch(next);
 });
 
-router.post('/data/save/project/', (req, res) => {
-  models.Project.create(req.body).then((project) => {
+router.post('/data/save/project/', (req, res, next) => {
+  models.sequelize.transaction((t) => {
+    return models.Project.create(req.body, {
+      transaction: t
+    });
+  }).then((project) => {
     res.json(project);
-  });
+  }).catch(next);
 });
 
-router.post('/data/save/sprint', (req, res) => {
-  models.Sprint.create(req.body, {
-    include: [
-      {
-        model: models.Ticket,
-        as: 'tickets'
-      }
-    ]
+router.post('/data/save/sprint', (req, res, next) => {
+  models.sequelize.transaction((t) => {
+    return models.Sprint.create(req.body, {
+      include: [
+        {
+          model: models.Ticket,
+          as: 'tickets'
+        }
+      ]
+    }, {
+      transaction: t
+    });
   }).then((sprint) => {
     res.json(sprint);
-  });
+  }).catch(next);
 });
 
-router.post('/data/save/ticket', (req, res) => {
-  models.Ticket.create(req.body)
-    .then((ticket) => {
-      res.json(ticket);
+router.post('/data/save/ticket', (req, res, next) => {
+  models.sequelize.transaction((t) => {
+    return models.Ticket.create(req.body, {
+      transaction: t
     });
+  }).then((ticket) => {
+    res.json(ticket);
+  }).catch(next);
 });
 
-router.post('/data/save/user/:id', (req, res) => {
-  models.User.update(req.body, {
-    where: {
-      id: req.params.id
-    }
-  }).then((id) => {
-    res.json(id);
-  });
+router.post('/data/save/user/:id', (req, res, next) => {
+  models.sequelize.transaction((t) => {
+    return models.User.update(req.body, {
+      where: {
+        id: req.params.id
+      }
+    }, {
+      transaction: t
+    });
+  })
+  .then(() => {
+    res.json();
+  }).catch(next);
 });
 
-router.post('/data/save/project/:id', (req, res) => {
-  models.Project.update(req.body, {
-    where: {
-      id: req.params.id
-    }
+router.post('/data/save/project/:id', (req, res, next) => {
+  models.sequelize.transaction((t) => {
+    return models.Project.update(req.body, {
+      where: {
+        id: req.params.id
+      }
+    }, {
+      transaction: t
+    });
   }).then(() => {
     res.json();
-  });
+  }).catch(next);
 });
 
-router.post('/data/save/sprint/:id', (req, res) => {
-  models.Sprint.update(req.body.root || {}, {
-    where: {
-      id: req.params.id
-    }
-  }).then(() => {
-    let ids = [];
-    let promises = [];
+router.post('/data/save/sprint/:id', (req, res, next) => {
+  models.sequelize.transaction((t) => {
+    return models.Sprint.update(req.body.root || {}, {
+      where: {
+        id: req.params.id
+      }
+    }, {
+      transaction: t
+    }).then(() => {
+      let ids = [];
+      let promises = [];
 
-    if (req.body.tickets.removed) {
-      promises.push(models.Ticket.destroy({
-        where: {
-          id: [req.body.tickets.removed]
-        }
-      }));
-    }
+      if (req.body.tickets.removed) {
+        promises.push(models.Ticket.destroy({
+          where: {
+            id: [req.body.tickets.removed]
+          }
+        }, {
+          transaction: t
+        }));
+      }
 
-    if (req.body.tickets.added) {
-      let toCreate = req.body.tickets.added.map((data, index) => {
-        return () => {
-            return models.Ticket.create(data).then((ticket) => {
-            ids[index] = ticket.id;
+      if (req.body.tickets.added) {
+        let toCreate = req.body.tickets.added.map((data, index) => {
+          return () => {
+            return models.Ticket.create(data, {
+              transaction: t
+            }).then((ticket) => {
+              ids[index] = ticket.id;
+            });
+          };
+        });
+
+        promises.push(toCreate.reduce((a, b) => {
+          return a.then(b);
+        }, Promise.resolve()));
+      }
+
+      if (req.body.tickets.updated) {
+        promises.push(Promise.all(req.body.tickets.updated.map((data) => {
+          return models.Ticket.update(data, {
+            where: {
+              id: data.id
+            }
+          }, {
+            transaction: t
           });
+        })));
+      }
+
+      return Promise.all(promises).then(() => {
+        return {
+          tickets: {
+            added: ids
+          }
         };
       });
-
-      promises.push(toCreate.reduce((a, b) => {
-        return a.then(b);
-      }, Promise.resolve()));
-    }
-
-    if (req.body.tickets.updated) {
-      promises.push(Promise.all(req.body.tickets.updated.map((data) => {
-        return models.Ticket.update(data, {
-          where: {
-            id: data.id
-          }
-        });
-      })));
-    }
-
-    Promise.all(promises).then(() => {
-      res.json({
-        tickets: {
-          added: ids
-        }
-      });
     });
-  });
+  }).then((result) => {
+    res.json(result);
+  }).catch(next);
 });
 
-router.post('/data/save/ticket/:id', (req, res) => {
-  models.Ticket.update(req.body, {
-    where: {
-      id: req.params.id
-    }
-  }).then((id) => {
+router.post('/data/save/ticket/:id', (req, res, next) => {
+  models.sequelize.transaction((t) => {
+    return models.Ticket.update(req.body, {
+      where: {
+        id: req.params.id
+      }
+    }, {
+      transaction: t
+    });
+  })
+  .then((id) => {
     res.json(id);
-  });
+  }).catch(next);
+});
+
+router.post('/data/delete/project/:id', (req, res, next) => {
+  models.sequelize.transaction((t) => {
+    return models.Project.destroy({
+      where: {
+        id: req.params.id
+      }
+    }, {
+      transaction: t
+    });
+  }).then((count) => {
+    res.json(count);
+  }).catch(next);
+});
+
+router.post('/data/delete/sprint/:id', (req, res, next) => {
+  models.sequelize.transaction((t) => {
+    return models.Sprint.destroy({
+      where: {
+        id: req.params.id
+      }
+    }, {
+      transaction: t
+    });
+  }).then((count) => {
+    res.json(count);
+  }).catch(next);
+});
+
+router.post('/data/delete/ticket/:id', (req, res, next) => {
+  models.sequelize.transaction((t) => {
+    return models.Ticket.destroy({
+      where: {
+        id: req.params.id
+      }
+    }, {
+      transaction: t
+    });
+  }).then((count) => {
+    res.json(count);
+  }).catch(next);
+});
+
+router.post('/data/delete/user/:id', (req, res, next) => {
+  models.sequelize.transaction((t) => {
+    return models.User.destroy({
+      where: {
+        id: req.params.id
+      }
+    }, {
+      transaction: t
+    });
+  }).then((count) => {
+    res.json(count);
+  }).catch(next);
 });
 
 module.exports = router;

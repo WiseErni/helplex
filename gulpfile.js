@@ -36,10 +36,11 @@ gulp.task('default', () => {
     read: false
   })
   .pipe(mocha())
-  .once('error', () => {
+  .on('error', (e) => {
+    console.log(e.toString());
     process.exit(1);
   })
-  .once('end', () => {
+  .on('end', () => {
     process.exit();
   });
 });
