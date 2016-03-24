@@ -199,29 +199,32 @@ describe('saving', function () {
       .post('/data/save/sprint')
       .set('Content-Type', 'application/json')
       .send({
-        title: '1-x',
-        creator_id: 1,
-        project_id: 1,
-        tickets: [
-          {
-            title: 'test ticket',
-            project_id: 1
-          }, {
-            title: 'simple ticket',
-            project_id: 1
-          }, {
-            title: 'new ticket',
-            project_id: 1
-          }
-        ]
+        root: {
+          title: '1-x',
+          creator_id: 1,
+          project_id: 1
+        },
+        tickets: {
+          added: [
+            {
+              title: 'test ticket',
+              project_id: 1
+            }, {
+              title: 'simple ticket',
+              project_id: 1
+            }, {
+              title: 'new ticket',
+              project_id: 1
+            }
+          ]
+        }
       })
       .then((res) => {
         res.status.should.be.equal(200);
-        res.body.id.should.be.ok();
 
         return models.Sprint.find({
           where: {
-            id: res.body.id
+            id: res.body.root
           },
           include: [
             {
@@ -408,7 +411,7 @@ describe('saving', function () {
       .set('Content-Type', 'application/json')
       .send({
         root: {
-          title: 'sprint5'
+          factor: 100
         },
         tickets: {
           added: [
@@ -432,12 +435,12 @@ describe('saving', function () {
             ticket.title.should.be.equal('Перенос инструкций на внешнюю вики');
           }),
           models.Sprint.find({
-            attributes: ['title'],
+            attributes: ['factor'],
             where: {
               id: 5
             }
           }).then((sprint) => {
-            sprint.title.should.be.equal('sprint5');
+            sprint.factor.should.be.equal(65);
           })
         ]);
       });
@@ -519,6 +522,7 @@ describe('saving', function () {
 
         return Promise.all([
           models.Sprint.find({
+            attributes: ['staffed'],
             where: {
               id: 5
             }

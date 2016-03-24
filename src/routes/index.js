@@ -145,19 +145,35 @@ router.post('/data/save/project/', (req, res, next) => {
 });
 
 router.post('/data/save/sprint', (req, res, next) => {
+  let root;
+  let tickets = [];
+
   models.sequelize.transaction((t) => {
-    return models.Sprint.create(req.body, {
-      include: [
-        {
-          model: models.Ticket,
-          as: 'tickets'
-        }
-      ]
-    }, {
+    return models.Sprint.create(req.body.root || {}, {
       transaction: t
+    }).then((sprint) => {
+      root = sprint.id;
+
+      if (req.body.tickets.added) {
+        return req.body.tickets.added.map((data) => {
+          return () => {
+            return models.Ticket.create(Object.assign({}, data, {
+              sprint_id: root
+            }), {
+              transaction: t
+            }).then((ticket) => {
+              tickets.push(ticket.id);
+            });
+          };
+        }).reduce((a, b) => {
+          return a.then(b);
+        }, Promise.resolve());
+      }
     });
-  }).then((sprint) => {
-    res.json(sprint);
+  }).then(() => {
+    res.json({
+      root, tickets
+    });
   }).catch(next);
 });
 
@@ -176,8 +192,7 @@ router.post('/data/save/user/:id', (req, res, next) => {
     return models.User.update(req.body, {
       where: {
         id: req.params.id
-      }
-    }, {
+      },
       transaction: t
     });
   })
@@ -191,8 +206,7 @@ router.post('/data/save/project/:id', (req, res, next) => {
     return models.Project.update(req.body, {
       where: {
         id: req.params.id
-      }
-    }, {
+      },
       transaction: t
     });
   }).then(() => {
@@ -205,25 +219,25 @@ router.post('/data/save/sprint/:id', (req, res, next) => {
     return models.Sprint.update(req.body.root || {}, {
       where: {
         id: req.params.id
-      }
-    }, {
+      },
       transaction: t
     }).then(() => {
       let ids = [];
-      let promises = [];
+      let actions = [];
 
       if (req.body.tickets.removed) {
-        promises.push(models.Ticket.destroy({
-          where: {
-            id: [req.body.tickets.removed]
-          }
-        }, {
-          transaction: t
-        }));
+        actions.push(() => {
+          return models.Ticket.destroy({
+            where: {
+              id: [req.body.tickets.removed]
+            },
+            transaction: t
+          });
+        });
       }
 
       if (req.body.tickets.added) {
-        let toCreate = req.body.tickets.added.map((data, index) => {
+        actions = actions.concat(req.body.tickets.added.map((data, index) => {
           return () => {
             return models.Ticket.create(data, {
               transaction: t
@@ -231,26 +245,25 @@ router.post('/data/save/sprint/:id', (req, res, next) => {
               ids[index] = ticket.id;
             });
           };
-        });
-
-        promises.push(toCreate.reduce((a, b) => {
-          return a.then(b);
-        }, Promise.resolve()));
+        }));
       }
 
       if (req.body.tickets.updated) {
-        promises.push(Promise.all(req.body.tickets.updated.map((data) => {
-          return models.Ticket.update(data, {
-            where: {
-              id: data.id
-            }
-          }, {
-            transaction: t
-          });
-        })));
+        actions = actions.concat(req.body.tickets.updated.map((data) => {
+          return () => {
+            return models.Ticket.update(data, {
+              where: {
+                id: data.id
+              },
+              transaction: t
+            });
+          };
+        }));
       }
 
-      return Promise.all(promises).then(() => {
+      return actions.reduce((a, b) => {
+        return a.then(b);
+      }, Promise.resolve()).then(() => {
         return {
           tickets: {
             added: ids
@@ -268,8 +281,7 @@ router.post('/data/save/ticket/:id', (req, res, next) => {
     return models.Ticket.update(req.body, {
       where: {
         id: req.params.id
-      }
-    }, {
+      },
       transaction: t
     });
   })
@@ -283,8 +295,7 @@ router.post('/data/delete/project/:id', (req, res, next) => {
     return models.Project.destroy({
       where: {
         id: req.params.id
-      }
-    }, {
+      },
       transaction: t
     });
   }).then((count) => {
@@ -297,8 +308,7 @@ router.post('/data/delete/sprint/:id', (req, res, next) => {
     return models.Sprint.destroy({
       where: {
         id: req.params.id
-      }
-    }, {
+      },
       transaction: t
     });
   }).then((count) => {
@@ -311,8 +321,7 @@ router.post('/data/delete/ticket/:id', (req, res, next) => {
     return models.Ticket.destroy({
       where: {
         id: req.params.id
-      }
-    }, {
+      },
       transaction: t
     });
   }).then((count) => {
@@ -325,8 +334,7 @@ router.post('/data/delete/user/:id', (req, res, next) => {
     return models.User.destroy({
       where: {
         id: req.params.id
-      }
-    }, {
+      },
       transaction: t
     });
   }).then((count) => {
