@@ -4,8 +4,6 @@
   "description": "lexema helpdesk backend",
   "scripts": {
     "start": "node ./src/index.js",
-    "start-mysql": "set NODE_ENV=development&node ./src/index.js",
-    "start-mssql": "set NODE_ENV=test&node ./src/index.js",
     "test": "mocha"
   },
   "repository": {

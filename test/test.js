@@ -1,6 +1,5 @@
 /*eslint-env mocha */
 'use strict';
-process.env.NODE_ENV = 'test';
 
 // eslint-disable-next-line
 const should = require('should');
