@@ -426,7 +426,9 @@ describe('saving', function () {
           added: [
             {
               id: 2,
-              title: 'added ticket 55'
+              title: 'added ticket 55',
+              project_id: 1,
+              sprint_id: 5
             }
           ]
         }
