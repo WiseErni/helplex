@@ -14,10 +14,16 @@ app.use('/', routes);
 
 // eslint-disable-next-line
 app.use((err, req, res, next) => {
+  let error = {};
+
+  if ((app.get('env') === 'development') || (app.get('env') === 'test')) {
+    error = err;
+  }
+
   res.status(err.status || 500)
     .json({
       message: err.message,
-      error: (app.get('env') === 'development') || (app.get('env') === 'test') ? err : {}
+      error
     });
 });
 
