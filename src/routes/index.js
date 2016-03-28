@@ -121,6 +121,10 @@ router.get('/data/load/project/:id', (req, res, next) => {
       }
     ]
   }).then((result) => {
+    if (!result) {
+      throw new Error(`Can't load project with id=${req.params.id}`);
+    }
+
     res.json(normalize(result.toJSON(), project));
   }).catch(next);
 });
@@ -161,6 +165,10 @@ router.get('/data/load/sprint/:id', (req, res, next) => {
       }
     ]
   }).then((result) => {
+    if (!result) {
+      throw new Error(`Can't load sprint with id=${req.params.id}`);
+    }
+
     res.json(normalize(result.toJSON(), sprint));
   }).catch(next);
 });
@@ -187,6 +195,10 @@ router.get('/data/load/ticket/:id', (req, res, next) => {
       }
     ]
   }).then((result) => {
+    if (!result) {
+      throw new Error(`Can't load ticket with id=${req.params.id}`);
+    }
+
     res.json(normalize(result.toJSON(), ticket));
   }).catch(next);
 });
@@ -198,6 +210,10 @@ router.get('/data/load/user/:id', (req, res, next) => {
       id: req.params.id
     }
   }).then((result) => {
+    if (!result) {
+      throw new Error(`Can't load user with id=${req.params.id}`);
+    }
+
     res.json(normalize(result.toJSON(), user));
   }).catch(next);
 });

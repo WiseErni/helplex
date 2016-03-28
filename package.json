@@ -21,7 +21,7 @@
     "gulp": "^3.9.1",
     "gulp-eslint": "^2.0.0",
     "gulp-mocha": "^2.2.0",
-    "gulp-sequelize-test-setup": "0.0.2",
+    "gulp-sequelize-test-setup": "^0.0.3",
     "mocha": "^2.4.5",
     "node-inspector": "^0.12.7",
     "should": "^8.2.2",

@@ -43,6 +43,14 @@ describe('loading', function () {
       });
   });
 
+  it ('should fail to return user with wrong id', function () {
+    return agent
+      .get('/data/load/user/0')
+      .then((res) => {
+        res.status.should.be.equal(500);
+      });
+  });
+
   it ('should return projects', function () {
     return agent
       .get('/data/load/projects')
@@ -308,6 +316,26 @@ describe('saving', function () {
         return models.Ticket.count({
           where: {
             title: 'tick'
+          }
+        }).then((count) => {
+          count.should.be.equal(0);
+        });
+      });
+  });
+
+  it('should fail to create new ticket without project_id', function () {
+    return agent
+      .post('/data/save/ticket')
+      .set('Content-Type', 'application/json')
+      .send({
+        title: 'raw ticket'
+      })
+      .then((res) => {
+        res.status.should.be.equal(500);
+
+        return models.Ticket.count({
+          where: {
+            title: 'raw ticket'
           }
         }).then((count) => {
           count.should.be.equal(0);

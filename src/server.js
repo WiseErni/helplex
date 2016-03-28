@@ -1,12 +1,12 @@
 'use strict';
 
-const express = require('express');
-const bodyParser = require('body-parser');
-const expressWinston = require('express-winston');
-const winston = require('winston');
-const routes = require('./routes');
-const app = express();
-const SeqLogger = require('./seqlogger');
+const express = require('express'),
+  bodyParser = require('body-parser'),
+  expressWinston = require('express-winston'),
+  winston = require('winston'),
+  routes = require('./routes'),
+  app = express(),
+  seqLogger = require('./seqlogger');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
@@ -24,14 +24,6 @@ app.use(expressWinston.logger({
 
 app.use('/', routes);
 
-app.use(expressWinston.errorLogger({
-  transports: [
-    new SeqLogger({
-      json: false
-    })
-  ]
-}));
-
 // eslint-disable-next-line
 app.use((err, req, res, next) => {
   let error = {};
@@ -40,6 +32,8 @@ app.use((err, req, res, next) => {
     error = err;
   }
 
+  seqLogger.log('error', err.message, JSON.stringify(err), req.ip, req.originalUrl);
+  
   res.status(err.status || 500)
     .json({
       message: err.message,

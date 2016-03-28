@@ -10,8 +10,8 @@
   "test": {
     "username": "sa",
     "password": "sql",
-    "database": "lex_test",
-    "host": "127.0.0.1",
+    "database": "lexdesk_test",
+    "host": "192.168.0.31",
     "dialect": "mssql",
     "logging": false
   },

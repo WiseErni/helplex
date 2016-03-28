@@ -12,6 +12,20 @@ const PATH = {
   MIGRATIONS: './src/db/migrations'
 };
 
+const test = function () {
+  return gulp.src(PATH.TESTS, {
+    read: false
+  })
+  .pipe(mocha())
+  .on('error', (e) => {
+    console.log(e.toString());
+    process.exit(1);
+  })
+  .on('end', () => {
+    process.exit();
+  });
+};
+
 gulp.task('lint', () => {
   return gulp.src([PATH.SRC])
     .pipe(eslint())
@@ -43,16 +57,10 @@ gulp.task('setup-migrate', () => {
     }));
 });
 
-gulp.task('test', ['setup-sync'], () => {
-  return gulp.src(PATH.TESTS, {
-    read: false
-  })
-  .pipe(mocha())
-  .on('error', (e) => {
-    console.log(e.toString());
-    process.exit(1);
-  })
-  .on('end', () => {
-    process.exit();
-  });
+gulp.task('test', ['setup-migrate'], () => {
+  return test();
+});
+
+gulp.task('test-sync', ['setup-sync'], () => {
+  return test();
 });
