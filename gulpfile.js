@@ -1,48 +1,66 @@
-'use strict';
+const gulp = require('gulp'),
+  mocha = require('gulp-mocha'),
+  eslint = require('gulp-eslint'),
+  sequelizeTestSetup = require('gulp-sequelize-test-setup'),
+  sequelize_fixtures = require('sequelize-fixtures');
 
-const gulp = require('gulp');
-const mocha = require('gulp-mocha');
-const lint = require('./gulp-tasks/lint.js');
-const sequelizeTestSetup = require('gulp-sequelize-test-setup');
+const PATH = {
+  SRC: './src/**/*.js',
+  TESTS: './test/**/*.js',
+  MODELS: './src/db/models',
+  FIXTURES: './test/fixtures/**/*',
+  MIGRATIONS: './src/db/migrations'
+};
 
-gulp.task('default', () => {
-  console.log('default task');
-})
-.task('lint', lint)
-.task('setup-dev', () => {
-  process.env.NODE_ENV = 'development';
-  const models = require('./src/db/models');
-  const sequelize_fixtures = require('sequelize-fixtures');
+const test = function () {
+  return gulp.src(PATH.TESTS, {
+    read: false
+  })
+  .pipe(mocha())
+  .on('error', (e) => {
+    console.log(e.toString());
+    process.exit(1);
+  })
+  .on('end', () => {
+    process.exit();
+  });
+};
+
+gulp.task('lint', () => {
+  return gulp.src([PATH.SRC])
+    .pipe(eslint())
+    .pipe(eslint.format())
+    .pipe(eslint.failAfterError());
+});
+
+gulp.task('setup-sync', () => {
+  const models = require(PATH.MODELS);
 
   return models.sequelize.sync({
     force: true
   }).then(() => {
-    sequelize_fixtures.loadFile('./test/fixtures/**/*', models).then(function(){
-      console.log('sync complete');
-      process.exit();
-    });
+    return sequelize_fixtures.loadFile(PATH.FIXTURES, models);
   });
-}).task('setup-test', () => {
-  process.env.NODE_ENV = 'test';
-  const models = require('./src/db/models');
-  return gulp.src('./test/fixtures/**/*', {
+});
+
+gulp.task('setup-migrate', () => {
+  const models = require(PATH.MODELS);
+
+  return gulp.src(PATH.FIXTURES, {
       read: false
     })
     .pipe(sequelizeTestSetup({
       sequelize: models.sequelize,
       models: models,
-      migrationsPath: './src/db/migrations',
+      migrationsPath: PATH.MIGRATIONS,
       truncate: false
     }));
-}).task('test', ['setup-dev'], () => {
-  return gulp.src('./test/**/*.js', {
-    read: false
-  })
-  .pipe(mocha())
-  .once('error', () => {
-    process.exit(1);
-  })
-  .once('end', () => {
-    process.exit();
-  });
+});
+
+gulp.task('test', ['setup-migrate'], () => {
+  return test();
+});
+
+gulp.task('test-sync', ['setup-sync'], () => {
+  return test();
 });

@@ -1,6 +1,5 @@
 /*eslint-env mocha */
 'use strict';
-process.env.NODE_ENV = 'test';
 
 // eslint-disable-next-line
 const should = require('should');
@@ -14,7 +13,7 @@ const agent = request.agent('http://localhost:' + PORT);
 server.listen(PORT);
 
 describe('loading', function () {
-  it('should return 200', function () {
+  it('should return 200 and text "running..."', function () {
     return agent
       .get('/')
       .then((res) => {
@@ -28,9 +27,9 @@ describe('loading', function () {
       .get('/data/load/users/')
       .then((res) => {
         res.status.should.be.equal(200);
-        res.body.length.should.be.equal(9);
-        res.body[0].name.should.be.equal('admin');
-        res.body[4].name.should.be.equal('Илья Першин');
+        Object.keys(res.body.entities.users).length.should.be.equal(9);
+        res.body.entities.users['1'].name.should.be.equal('admin');
+        res.body.entities.users['5'].name.should.be.equal('Илья Першин');
       });
   });
 
@@ -39,8 +38,16 @@ describe('loading', function () {
       .get('/data/load/user/3')
       .then((res) => {
         res.status.should.be.equal(200);
-        res.body.role.should.be.equal('manager');
-        res.body.email.should.be.equal('julia@server.com');
+        res.body.entities.users['3'].role.should.be.equal('manager');
+        res.body.entities.users['3'].email.should.be.equal('julia@server.com');
+      });
+  });
+
+  it ('should fail to return user with wrong id', function () {
+    return agent
+      .get('/data/load/user/0')
+      .then((res) => {
+        res.status.should.be.equal(500);
       });
   });
 
@@ -49,11 +56,16 @@ describe('loading', function () {
       .get('/data/load/projects')
       .then((res) => {
         res.status.should.be.equal(200);
-        res.body.length.should.be.equal(3);
-        res.body[0].title.should.be.equal('Project 1');
-        res.body[1].title.should.be.equal('test test');
-        res.body[2].title.should.be.equal('empty project');
-        res.body[0].creator.name.should.be.equal('admin');
+        Object.keys(res.body.entities.projects).length.should.be.equal(3);
+        Object.keys(res.body.entities.users).length.should.be.equal(2);
+        res.body.entities.projects['1'].title.should.be.equal('Project 1');
+        res.body.entities.projects['1'].creator.should.be.equal(1);
+        res.body.entities.projects['2'].title.should.be.equal('test test');
+        res.body.entities.projects['2'].creator.should.be.equal(8);
+        res.body.entities.projects['3'].title.should.be.equal('empty project');
+        res.body.entities.projects['3'].creator.should.be.equal(8);
+        res.body.entities.users['1'].name.should.be.equal('admin');
+        res.body.entities.users['8'].name.should.be.equal('Роман Баландин');
       });
   });
 
@@ -62,11 +74,12 @@ describe('loading', function () {
       .get('/data/load/project/1')
       .then((res) => {
         res.status.should.be.equal(200);
-        res.body.title.should.be.ok();
-        res.body.title.should.be.equal('Project 1');
-        res.body.sprints.length.should.be.equal(10);
-        res.body.sprints[0].title.should.be.equal('1-1');
-        res.body.creator.name.should.be.equal('admin');
+        res.body.entities.projects['1'].title.should.be.ok();
+        res.body.entities.projects['1'].title.should.be.equal('Project 1');
+        Object.keys(res.body.entities.sprints).length.should.be.equal(10);
+        res.body.entities.sprints['1'].title.should.be.equal('1-1');
+        Object.keys(res.body.entities.users).length.should.be.equal(1);
+        res.body.entities.users['1'].name.should.be.equal('admin');
       });
   });
 
@@ -75,10 +88,11 @@ describe('loading', function () {
       .get('/data/load/sprints/')
       .then((res) => {
         res.status.should.be.equal(200);
-        res.body.length.should.be.equal(10);
-        res.body[0].title.should.be.equal('1-1');
-        res.body[8].title.should.be.equal('1-9');
-        res.body[0].creator.name.should.be.equal('admin');
+        Object.keys(res.body.entities.sprints).length.should.be.equal(10);
+        res.body.entities.sprints['1'].title.should.be.equal('1-1');
+        res.body.entities.sprints['9'].title.should.be.equal('1-9');
+        Object.keys(res.body.entities.users).length.should.be.equal(1);
+        res.body.entities.users['1'].name.should.be.equal('admin');
       });
   });
 
@@ -87,11 +101,12 @@ describe('loading', function () {
       .get('/data/load/sprint/5')
       .then((res) => {
         res.status.should.be.equal(200);
-        res.body.title.should.be.equal('1-5');
-        res.body.description.should.be.equal('короткий спринт (8 марта)');
-        res.body.tickets.length.should.be.equal(12);
-        res.body.tickets[6].title.should.be.equal('Серая область в методе выделения в гриде Standard');
-        res.body.creator.name.should.be.equal('admin');
+        res.body.entities.sprints['5'].title.should.be.equal('1-5');
+        res.body.entities.sprints['5'].description.should.be.equal('короткий спринт (8 марта)');
+        Object.keys(res.body.entities.tickets).length.should.be.equal(12);
+        Object.keys(res.body.entities.users).length.should.be.equal(8);
+        res.body.entities.tickets['7'].title.should.be.equal('Серая область в методе выделения в гриде Standard');
+        res.body.entities.users['1'].name.should.be.equal('admin');
       });
   });
 
@@ -100,11 +115,12 @@ describe('loading', function () {
       .get('/data/load/tickets/')
       .then((res) => {
         res.status.should.be.equal(200);
-        res.body.length.should.be.equal(12);
-        res.body[0].title.should.be.equal('Разработка инструкции по разработке модуля на примере домашней бухгалтерии');
-        res.body[0].creator.name.should.be.equal('Айрат Галямов');
-        res.body[10].title.should.be.equal('Сброс сортировки в гриде реестров');
-        res.body[10].creator.email.should.be.equal('murtasin@server.com');
+        Object.keys(res.body.entities.tickets).length.should.be.equal(12);
+        Object.keys(res.body.entities.users).length.should.be.equal(7);
+        res.body.entities.tickets['1'].title.should.be.equal('Разработка инструкции по разработке модуля на примере домашней бухгалтерии');
+        res.body.entities.tickets['11'].title.should.be.equal('Сброс сортировки в гриде реестров');
+        res.body.entities.users['2'].name.should.be.equal('Айрат Галямов');
+        res.body.entities.users['9'].email.should.be.equal('murtasin@server.com');
       });
   });
 
@@ -113,9 +129,10 @@ describe('loading', function () {
       .get('/data/load/ticket/2')
       .then((res) => {
         res.status.should.be.equal(200);
-        res.body.title.should.be.equal('Перенос инструкций на внешнюю вики');
-        res.body.creator.name.should.be.equal('Айрат Галямов');
-        res.body.developer.name.should.be.equal('Айрат Галямов');
+        Object.keys(res.body.entities.tickets).length.should.be.equal(1);
+        Object.keys(res.body.entities.users).length.should.be.equal(1);
+        res.body.entities.tickets['2'].title.should.be.equal('Перенос инструкций на внешнюю вики');
+        res.body.entities.users['2'].name.should.be.equal('Айрат Галямов');
       });
   });
 });
@@ -140,6 +157,25 @@ describe('saving', function () {
       });
   });
 
+  it('should fail to create new user with existing id', function () {
+    return agent
+      .post('/data/save/user')
+      .set('Content-Type', 'application/json')
+      .send({
+        id: 1,
+        name: 'admin2',
+        email: 'admin2@server.com',
+        role: 'manager'
+      })
+      .then((res) => {
+        res.status.should.be.equal(500);
+
+        return models.User.findById(1).then((user) => {
+          user.name.should.be.equal('admin');
+        });
+      });
+  });
+
   it('should create new project', function () {
     return agent
       .post('/data/save/project')
@@ -158,34 +194,54 @@ describe('saving', function () {
       });
   });
 
+  it('should fail to create new project with existing id', function () {
+    return agent
+      .post('/data/save/project')
+      .set('Content-Type', 'application/json')
+      .send({
+        id: 1,
+        title: 'another project'
+      })
+      .then((res) => {
+        res.status.should.be.equal(500);
+
+        return models.Project.findById(1).then((project) => {
+          project.title.should.be.equal('Project 1');
+        });
+      });
+  });
+
   it('should create new sprint', function () {
     return agent
       .post('/data/save/sprint')
       .set('Content-Type', 'application/json')
       .send({
-        title: '1-x',
-        creator_id: 1,
-        project_id: 1,
-        tickets: [
-          {
-            title: 'test ticket',
-            project_id: 1
-          }, {
-            title: 'simple ticket',
-            project_id: 1
-          }, {
-            title: 'new ticket',
-            project_id: 1
-          }
-        ]
+        root: {
+          title: '1-x',
+          creator_id: 1,
+          project_id: 1
+        },
+        tickets: {
+          added: [
+            {
+              title: 'test ticket',
+              project_id: 1
+            }, {
+              title: 'simple ticket',
+              project_id: 1
+            }, {
+              title: 'new ticket',
+              project_id: 1
+            }
+          ]
+        }
       })
       .then((res) => {
         res.status.should.be.equal(200);
-        res.body.id.should.be.ok();
 
         return models.Sprint.find({
           where: {
-            id: res.body.id
+            id: res.body.root
           },
           include: [
             {
@@ -199,6 +255,27 @@ describe('saving', function () {
           sprint.tickets[0].title.should.be.equal('test ticket');
           sprint.tickets[1].title.should.be.equal('simple ticket');
           sprint.tickets[2].title.should.be.equal('new ticket');
+        });
+      });
+  });
+
+  it('should fail to create new sprint without project_id', function () {
+    return agent
+      .post('/data/save/sprint')
+      .set('Content-Type', 'application/json')
+      .send({
+        title: '1-y',
+        creator_id: 1
+      })
+      .then((res) => {
+        res.status.should.be.equal(500);
+
+        return models.Sprint.count({
+          where: {
+            title: '1-y'
+          }
+        }).then((count) => {
+          count.should.be.equal(0);
         });
       });
   });
@@ -221,6 +298,47 @@ describe('saving', function () {
           }
         }).then((ticket) => {
           ticket.title.should.be.equal('create new ticket');
+        });
+      });
+  });
+
+  it('should fail to create new ticket with existing id', function () {
+    return agent
+      .post('/data/save/ticket')
+      .set('Content-Type', 'application/json')
+      .send({
+        id: 1,
+        title: 'tick'
+      })
+      .then((res) => {
+        res.status.should.be.equal(500);
+
+        return models.Ticket.count({
+          where: {
+            title: 'tick'
+          }
+        }).then((count) => {
+          count.should.be.equal(0);
+        });
+      });
+  });
+
+  it('should fail to create new ticket without project_id', function () {
+    return agent
+      .post('/data/save/ticket')
+      .set('Content-Type', 'application/json')
+      .send({
+        title: 'raw ticket'
+      })
+      .then((res) => {
+        res.status.should.be.equal(500);
+
+        return models.Ticket.count({
+          where: {
+            title: 'raw ticket'
+          }
+        }).then((count) => {
+          count.should.be.equal(0);
         });
       });
   });
@@ -271,12 +389,12 @@ describe('saving', function () {
       .then((res) => {
         res.status.should.be.equal(200);
 
-        return models.Ticket.findAll({
+        return models.Ticket.count({
           where: {
             id: [1, 3]
           }
         }).then((x) => {
-          x.length.should.be.not.ok();
+          x.should.be.equal(0);
         });
       });
   });
@@ -324,6 +442,49 @@ describe('saving', function () {
       });
   });
 
+  it('should fail to update sprint with id=5 and ticket with existing id', function () {
+    return agent
+      .post('/data/save/sprint/5')
+      .set('Content-Type', 'application/json')
+      .send({
+        root: {
+          factor: 100
+        },
+        tickets: {
+          added: [
+            {
+              id: 2,
+              title: 'added ticket 55',
+              project_id: 1,
+              sprint_id: 5
+            }
+          ]
+        }
+      })
+      .then((res) => {
+        res.status.should.be.equal(500);
+
+        return Promise.all([
+          models.Ticket.find({
+            attributes: ['title'],
+            where: {
+              id: 2
+            }
+          }).then((ticket) => {
+            ticket.title.should.be.equal('Перенос инструкций на внешнюю вики');
+          }),
+          models.Sprint.find({
+            attributes: ['factor'],
+            where: {
+              id: 5
+            }
+          }).then((sprint) => {
+            sprint.factor.should.be.equal(65);
+          })
+        ]);
+      });
+  });
+
   it('should update sprint with id=5 and 2 updated tickets', function () {
     return agent
       .post('/data/save/sprint/5')
@@ -363,7 +524,7 @@ describe('saving', function () {
       .set('Content-Type', 'application/json')
       .send({
         root: {
-          title: 'sprint 5 updated'
+          staffed: true
         },
         tickets: {
           added: [
@@ -399,8 +560,13 @@ describe('saving', function () {
         res.body.tickets.added.length.should.be.equal(3);
 
         return Promise.all([
-          models.Sprint.findById(5).then((sprint) => {
-            sprint.title.should.be.equal('sprint 5 updated');
+          models.Sprint.find({
+            attributes: ['staffed'],
+            where: {
+              id: 5
+            }
+          }).then((sprint) => {
+            sprint.staffed.should.be.ok();
           }),
           models.Ticket.findAll({
             attributes: ['title'],
@@ -411,6 +577,13 @@ describe('saving', function () {
             tickets[0].title.should.be.equal('22.03');
             tickets[1].title.should.be.equal('deep down below');
             tickets[2].title.should.be.equal('liquid stranger');
+          }),
+          models.Ticket.count({
+            where: {
+              id: [7, 10]
+            }
+          }).then((x) => {
+            x.should.be.equal(0);
           })
         ]);
       });
@@ -436,5 +609,79 @@ describe('saving', function () {
 });
 
 describe('deleting', function () {
+  it('should delete project with id=2', function () {
+    return agent
+      .post('/data/delete/project/2')
+      .set('Content-Type', 'application/json')
+      .send()
+      .then((res) => {
+        res.status.should.be.equal(200);
+        res.body.should.be.equal(1);
 
+        return models.Project.count({
+          where: {
+            id: 2
+          }
+        }).then((count) => {
+          count.should.be.equal(0);
+        });
+      });
+  });
+
+  it('should delete sprint with id=9', function () {
+    return agent
+      .post('/data/delete/sprint/9')
+      .set('Content-Type', 'application/json')
+      .send()
+      .then((res) => {
+        res.status.should.be.equal(200);
+        res.body.should.be.equal(1);
+
+        return models.Sprint.count({
+          where: {
+            id: 9
+          }
+        }).then((count) => {
+          count.should.be.equal(0);
+        });
+      });
+  });
+
+  it('should delete ticket with id=2', function () {
+    return agent
+      .post('/data/delete/ticket/2')
+      .set('Content-Type', 'application/json')
+      .send()
+      .then((res) => {
+        res.status.should.be.equal(200);
+        res.body.should.be.equal(1);
+
+        return models.Ticket.count({
+          where: {
+            id: 2
+          }
+        }).then((count) => {
+          count.should.be.equal(0);
+        });
+      });
+  });
+
+  it('should delete user with id=6', function () {
+    return agent
+      .post('/data/delete/user/6')
+      .set('Content-Type', 'application/json')
+      .send()
+      .then((res) => {
+        res.status.should.be.equal(200);
+        res.body.should.be.equal(1);
+
+        return models.User.count({
+          where: {
+            id: 6
+          }
+        }).then((count) => {
+          count.should.be.equal(0);
+        });
+      });
+  });
 });

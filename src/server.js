@@ -1,29 +1,44 @@
 'use strict';
 
-const express = require('express');
-const bodyParser = require('body-parser');
-const routes = require('./routes');
-const app = express();
+const express = require('express'),
+  bodyParser = require('body-parser'),
+  expressWinston = require('express-winston'),
+  winston = require('winston'),
+  routes = require('./routes'),
+  app = express(),
+  seqLogger = require('./seqlogger');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
   extended: false
 }));
 
+app.use(expressWinston.logger({
+  transports: [
+    new winston.transports.File({
+      json: false,
+      filename: './logs/express.log'
+    })
+  ]
+}));
+
 app.use('/', routes);
 
-app.use(function(req, res, next) {
-  var err = new Error('Not Found');
-  err.status = 404;
-  next(err);
-});
+// eslint-disable-next-line
+app.use((err, req, res, next) => {
+  let error = {};
 
-app.use(function(err, req, res) {
-  res.status(err.status || 500);
-  res.render('error', {
-    message: err.message,
-    error: (app.get('env') === 'development') || (app.get('env') === 'test') ? err : {}
-  });
+  if ((app.get('env') === 'development') || (app.get('env') === 'test')) {
+    error = err;
+  }
+
+  seqLogger.log('error', err.message, JSON.stringify(err), req.ip, req.originalUrl);
+  
+  res.status(err.status || 500)
+    .json({
+      message: err.message,
+      error
+    });
 });
 
 module.exports = app;
