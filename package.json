@@ -1,11 +1,11 @@
 {
-  "lint": "node_modules/.bin/eslint src",
   "name": "helplex",
   "version": "1.0.0",
   "description": "lexema helpdesk backend",
   "scripts": {
     "start": "node ./src/index.js",
-    "test": "mocha"
+    "test": "mocha",
+    "lint": "node_modules/.bin/eslint src"
   },
   "repository": {
     "type": "git",
