@@ -1,4 +1,5 @@
 {
+  "lint": "node_modules/.bin/lint src",
   "name": "helplex",
   "version": "1.0.0",
   "description": "lexema helpdesk backend",
