@@ -1,7 +1,8 @@
 'use strict';
 
-const server = require('./server.js');
+const server = require('./server.js'),
+  PORT = 3500;
 
-server.listen(3000, () => {
-  console.log('listening at port 3000');
+server.listen(PORT, () => {
+  console.log(`listening at port ${PORT}`);
 });
