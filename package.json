@@ -1,5 +1,5 @@
 {
-  "name": "helplex",
+  "name": "lexdesk",
   "version": "1.0.0",
   "description": "lexema helpdesk backend",
   "scripts": {
@@ -9,14 +9,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/tinkerscript/helplex.git"
+    "url": "git+https://github.com/tinkerscript/lexdesk.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/tinkerscript/helplex/issues"
+    "url": "https://github.com/tinkerscript/lexdesk/issues"
   },
-  "homepage": "https://github.com/tinkerscript/helplex#readme",
+  "homepage": "https://github.com/tinkerscript/lexdesk#readme",
   "devDependencies": {
     "eslint": "^2.3.0",
     "gulp": "^3.9.1",
