@@ -21,15 +21,6 @@ describe('loading', function () {
         res.text.should.be.equal('running...\n');
       });
   });
-  
-  it('should return 200 and text "it is test"', function () {
-    return agent
-      .get('/')
-      .then((res) => {
-        res.status.should.be.equal(200);
-        res.text.should.be.equal('it is test');
-      });
-  });
 
   it ('should return users', function () {
     return agent

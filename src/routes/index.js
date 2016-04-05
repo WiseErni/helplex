@@ -22,13 +22,6 @@ router.get('/', (req, res) => {
   res.end('running...\n');
 });
 
-router.get('/test', (req, res) => {
-    res.writeHead(200, {
-      'Content-Type': 'text/plain'
-    });
-    res.end('it is test');
-  });
-
 router.get('/data/load/projects', (req, res, next) => {
   models.Project.findAll({
     include: {
