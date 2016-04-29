@@ -14,7 +14,7 @@ module.exports = {
       description: {
         type: Sequelize.TEXT
       },
-      raiting: {
+      rating: {
         type: Sequelize.DECIMAL
       },
       status: {

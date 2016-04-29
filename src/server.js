@@ -8,6 +8,15 @@ const express = require('express'),
   app = express(),
   seqLogger = require('./seqlogger');
 
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header(
+    'Access-Control-Allow-Headers',
+    'Origin, X-Requested-With, Content-Type, Accept'
+  );
+  next();
+});
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
   extended: false
@@ -33,7 +42,7 @@ app.use((err, req, res, next) => {
   }
 
   seqLogger.log('error', err.message, JSON.stringify(err), req.ip, req.originalUrl);
-  
+
   res.status(err.status || 500)
     .json({
       message: err.message,

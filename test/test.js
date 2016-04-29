@@ -408,17 +408,17 @@ describe('saving', function () {
           added: [
             {
               title: 'added ticket 1',
-              raiting: 2,
+              rating: 2,
               sprint_id: 5,
               project_id: 1
             }, {
               title: 'ticket 2',
-              raiting: 10,
+              rating: 10,
               sprint_id: 5,
               project_id: 1
             }, {
               title: 'ticket ticket 3',
-              raiting: 5,
+              rating: 5,
               sprint_id: 5,
               project_id: 1
             }
