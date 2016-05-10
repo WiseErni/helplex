@@ -6,7 +6,13 @@ const express = require('express'),
   winston = require('winston'),
   routes = require('./routes'),
   app = express(),
-  seqLogger = require('./seqlogger');
+  seqLogger = require('./seqlogger'),
+  fs = require('fs'),
+  LOGS_DIR = './logs';
+
+if (!fs.existsSync(LOGS_DIR)) {
+  fs.mkdirSync(LOGS_DIR);
+}
 
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
@@ -26,7 +32,7 @@ app.use(expressWinston.logger({
   transports: [
     new winston.transports.File({
       json: false,
-      filename: './logs/express.log'
+      filename: `${LOGS_DIR}/express.log`
     })
   ]
 }));
