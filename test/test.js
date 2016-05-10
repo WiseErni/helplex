@@ -12,8 +12,8 @@ const PORT = 3456;
 const agent = request.agent('http://localhost:' + PORT);
 server.listen(PORT);
 
-describe('loading', function () {
-  it('should return 200 and text "running..."', function () {
+describe('loading', function() {
+  it('should return 200 and text "running..."', function() {
     return agent
       .get('/')
       .then((res) => {
@@ -22,7 +22,7 @@ describe('loading', function () {
       });
   });
 
-  it ('should return users', function () {
+  it('should return users', function() {
     return agent
       .get('/data/load/users/')
       .then((res) => {
@@ -33,7 +33,7 @@ describe('loading', function () {
       });
   });
 
-  it ('should return user with id=3', function () {
+  it('should return user with id=3', function() {
     return agent
       .get('/data/load/user/3')
       .then((res) => {
@@ -43,7 +43,7 @@ describe('loading', function () {
       });
   });
 
-  it ('should fail to return user with wrong id', function () {
+  it('should fail to return user with wrong id', function() {
     return agent
       .get('/data/load/user/0')
       .then((res) => {
@@ -51,7 +51,7 @@ describe('loading', function () {
       });
   });
 
-  it ('should return projects', function () {
+  it('should return projects', function() {
     return agent
       .get('/data/load/projects')
       .then((res) => {
@@ -69,7 +69,7 @@ describe('loading', function () {
       });
   });
 
-  it ('should return project with id=1', function () {
+  it('should return project with id=1', function() {
     return agent
       .get('/data/load/project/1')
       .then((res) => {
@@ -83,7 +83,7 @@ describe('loading', function () {
       });
   });
 
-  it ('should return sprints', function () {
+  it('should return sprints', function() {
     return agent
       .get('/data/load/sprints/')
       .then((res) => {
@@ -96,7 +96,7 @@ describe('loading', function () {
       });
   });
 
-  it ('should return sprint with id=5', function () {
+  it('should return sprint with id=5', function() {
     return agent
       .get('/data/load/sprint/5')
       .then((res) => {
@@ -104,13 +104,14 @@ describe('loading', function () {
         res.body.entities.sprints['5'].title.should.be.equal('1-5');
         res.body.entities.sprints['5'].description.should.be.equal('короткий спринт (8 марта)');
         Object.keys(res.body.entities.tickets).length.should.be.equal(12);
+        Object.keys(res.body.entities.contracts).length.should.be.equal(1);
         Object.keys(res.body.entities.users).length.should.be.equal(8);
         res.body.entities.tickets['7'].title.should.be.equal('Серая область в методе выделения в гриде Standard');
         res.body.entities.users['1'].name.should.be.equal('admin');
       });
   });
 
-  it ('should return tickets', function () {
+  it('should return tickets', function() {
     return agent
       .get('/data/load/tickets/')
       .then((res) => {
@@ -124,7 +125,7 @@ describe('loading', function () {
       });
   });
 
-  it('should return ticket with id=2', function () {
+  it('should return ticket with id=2', function() {
     return agent
       .get('/data/load/ticket/2')
       .then((res) => {
@@ -135,10 +136,39 @@ describe('loading', function () {
         res.body.entities.users['2'].name.should.be.equal('Айрат Галямов');
       });
   });
+
+  it('should return contracts', function() {
+    return agent
+      .get('/data/load/contracts/')
+      .then((res) => {
+        res.status.should.be.equal(200);
+        Object.keys(res.body.entities.contracts).length.should.be.equal(10);
+        res.body.entities.contracts['1'].days.should.be.equal(2);
+        res.body.entities.contracts['5'].developer.should.be.equal(5);
+      });
+  });
+
+  it('should return contract with id=3', function() {
+    return agent
+      .get('/data/load/contract/3')
+      .then((res) => {
+        res.status.should.be.equal(200);
+        res.body.entities.contracts['3'].days.should.be.equal(1);
+        res.body.entities.contracts['3'].developer.should.be.equal(3);
+      });
+  });
+
+  it('should fail to return contract with wrong id', function() {
+    return agent
+      .get('/data/load/contract/0')
+      .then((res) => {
+        res.status.should.be.equal(500);
+      });
+  });
 });
 
-describe('saving', function () {
-  it('should create new user', function () {
+describe('saving', function() {
+  it('should create new user', function() {
     return agent
       .post('/data/save/user')
       .set('Content-Type', 'application/json')
@@ -157,7 +187,7 @@ describe('saving', function () {
       });
   });
 
-  it('should fail to create new user with existing id', function () {
+  it('should fail to create new user with existing id', function() {
     return agent
       .post('/data/save/user')
       .set('Content-Type', 'application/json')
@@ -176,7 +206,7 @@ describe('saving', function () {
       });
   });
 
-  it('should create new project', function () {
+  it('should create new project', function() {
     return agent
       .post('/data/save/project')
       .set('Content-Type', 'application/json')
@@ -194,7 +224,7 @@ describe('saving', function () {
       });
   });
 
-  it('should fail to create new project with existing id', function () {
+  it('should fail to create new project with existing id', function() {
     return agent
       .post('/data/save/project')
       .set('Content-Type', 'application/json')
@@ -211,7 +241,7 @@ describe('saving', function () {
       });
   });
 
-  it('should create new sprint', function () {
+  it('should create new sprint', function() {
     return agent
       .post('/data/save/sprint')
       .set('Content-Type', 'application/json')
@@ -222,18 +252,25 @@ describe('saving', function () {
           project_id: 1
         },
         tickets: {
-          added: [
-            {
-              title: 'test ticket',
-              project_id: 1
-            }, {
-              title: 'simple ticket',
-              project_id: 1
-            }, {
-              title: 'new ticket',
-              project_id: 1
-            }
-          ]
+          added: [{
+            title: 'test ticket',
+            project_id: 1
+          }, {
+            title: 'simple ticket',
+            project_id: 1
+          }, {
+            title: 'new ticket',
+            project_id: 1
+          }]
+        },
+        contracts: {
+          added: [{
+            days: 2,
+            user_id: 1
+          }, {
+            days: 3,
+            user_id: 2
+          }]
         }
       })
       .then((res) => {
@@ -243,15 +280,17 @@ describe('saving', function () {
           where: {
             id: res.body.root
           },
-          include: [
-            {
-              model: models.Ticket,
-              as: 'tickets'
-            }
-          ]
+          include: [{
+            model: models.Ticket,
+            as: 'tickets'
+          }, {
+            model: models.Contract,
+            as: 'contracts'
+          }]
         }).then((sprint) => {
           sprint.title.should.be.equal('1-x');
           sprint.tickets.length.should.be.equal(3);
+          sprint.contracts.length.should.be.equal(2);
           sprint.tickets[0].title.should.be.equal('test ticket');
           sprint.tickets[1].title.should.be.equal('simple ticket');
           sprint.tickets[2].title.should.be.equal('new ticket');
@@ -259,7 +298,7 @@ describe('saving', function () {
       });
   });
 
-  it('should fail to create new sprint without project_id', function () {
+  it('should fail to create new sprint without project_id', function() {
     return agent
       .post('/data/save/sprint')
       .set('Content-Type', 'application/json')
@@ -280,7 +319,7 @@ describe('saving', function () {
       });
   });
 
-  it('should create new ticket', function () {
+  it('should create new ticket', function() {
     return agent
       .post('/data/save/ticket')
       .set('Content-Type', 'application/json')
@@ -302,7 +341,7 @@ describe('saving', function () {
       });
   });
 
-  it('should fail to create new ticket with existing id', function () {
+  it('should fail to create new ticket with existing id', function() {
     return agent
       .post('/data/save/ticket')
       .set('Content-Type', 'application/json')
@@ -323,7 +362,7 @@ describe('saving', function () {
       });
   });
 
-  it('should fail to create new ticket without project_id', function () {
+  it('should fail to create new ticket without project_id', function() {
     return agent
       .post('/data/save/ticket')
       .set('Content-Type', 'application/json')
@@ -343,7 +382,95 @@ describe('saving', function () {
       });
   });
 
-  it('should update user with id=1', function () {
+
+  it('should create new contract', function() {
+    return agent
+      .post('/data/save/contract')
+      .set('Content-Type', 'application/json')
+      .send({
+        days: 3,
+        user_id: 5,
+        sprint_id: 1
+      })
+      .then((res) => {
+        res.status.should.be.equal(200);
+
+        return models.Contract.find({
+          where: {
+            id: res.body.id
+          }
+        }).then((contract) => {
+          contract.days.should.be.equal(3);
+        });
+      });
+  });
+
+  it('should fail to create new contract with existing id', function() {
+    return agent
+      .post('/data/save/contract')
+      .set('Content-Type', 'application/json')
+      .send({
+        id: 1,
+        days: 999,
+        user_id: 1,
+        sprint_id: 3
+      })
+      .then((res) => {
+        res.status.should.be.equal(500);
+
+        return models.Contract.count({
+          where: {
+            days: 999
+          }
+        }).then((count) => {
+          count.should.be.equal(0);
+        });
+      });
+  });
+
+  it('should fail to create new contract without sprint_id', function() {
+    return agent
+      .post('/data/save/contract')
+      .set('Content-Type', 'application/json')
+      .send({
+        days: 888,
+        user_id: 1
+      })
+      .then((res) => {
+        res.status.should.be.equal(500);
+
+        return models.Contract.count({
+          where: {
+            days: 888
+          }
+        }).then((count) => {
+          count.should.be.equal(0);
+        });
+      });
+  });
+
+  it('should fail to create new contract without user_id', function() {
+    return agent
+      .post('/data/save/contract')
+      .set('Content-Type', 'application/json')
+      .send({
+        days: 777,
+        sprint_id: 1
+      })
+      .then((res) => {
+        res.status.should.be.equal(500);
+
+        return models.Contract.count({
+          where: {
+            days: 777
+          }
+        }).then((count) => {
+          count.should.be.equal(0);
+        });
+      });
+  });
+
+  it('should update user with id=1', function() {
     return agent
       .post('/data/save/user/1')
       .set('Content-Type', 'application/json')
@@ -361,7 +488,7 @@ describe('saving', function () {
       });
   });
 
-  it('should update project with id=3', function () {
+  it('should update project with id=3', function() {
     return agent
       .post('/data/save/project/3')
       .set('Content-Type', 'application/json')
@@ -377,7 +504,7 @@ describe('saving', function () {
       });
   });
 
-  it('should update sprint with id=5 and 2 deleted tickets', function () {
+  it('should update sprint with id=5 and 2 deleted tickets', function() {
     return agent
       .post('/data/save/sprint/5')
       .set('Content-Type', 'application/json')
@@ -399,30 +526,28 @@ describe('saving', function () {
       });
   });
 
-  it('should update sprint with id=5 and 3 added tickets', function () {
+  it('should update sprint with id=5 and 3 added tickets', function() {
     return agent
       .post('/data/save/sprint/5')
       .set('Content-Type', 'application/json')
       .send({
         tickets: {
-          added: [
-            {
-              title: 'added ticket 1',
-              rating: 2,
-              sprint_id: 5,
-              project_id: 1
-            }, {
-              title: 'ticket 2',
-              rating: 10,
-              sprint_id: 5,
-              project_id: 1
-            }, {
-              title: 'ticket ticket 3',
-              rating: 5,
-              sprint_id: 5,
-              project_id: 1
-            }
-          ]
+          added: [{
+            title: 'added ticket 1',
+            rating: 2,
+            sprint_id: 5,
+            project_id: 1
+          }, {
+            title: 'ticket 2',
+            rating: 10,
+            sprint_id: 5,
+            project_id: 1
+          }, {
+            title: 'ticket ticket 3',
+            rating: 5,
+            sprint_id: 5,
+            project_id: 1
+          }]
         }
       })
       .then((res) => {
@@ -442,7 +567,7 @@ describe('saving', function () {
       });
   });
 
-  it('should fail to update sprint with id=5 and ticket with existing id', function () {
+  it('should fail to update sprint with id=5 and ticket with existing id', function() {
     return agent
       .post('/data/save/sprint/5')
       .set('Content-Type', 'application/json')
@@ -451,14 +576,12 @@ describe('saving', function () {
           factor: 100
         },
         tickets: {
-          added: [
-            {
-              id: 2,
-              title: 'added ticket 55',
-              project_id: 1,
-              sprint_id: 5
-            }
-          ]
+          added: [{
+            id: 2,
+            title: 'added ticket 55',
+            project_id: 1,
+            sprint_id: 5
+          }]
         }
       })
       .then((res) => {
@@ -485,22 +608,20 @@ describe('saving', function () {
       });
   });
 
-  it('should update sprint with id=5 and 2 updated tickets', function () {
+  it('should update sprint with id=5 and 2 updated tickets', function() {
     return agent
       .post('/data/save/sprint/5')
       .set('Content-Type', 'application/json')
       .send({
         tickets: {
-          updated: [
-            {
-              id: 4,
-              title: 'date selection error!',
-              description: ''
-            }, {
-              id: 8,
-              title: 'signalr'
-            }
-          ]
+          updated: [{
+            id: 4,
+            title: 'date selection error!',
+            description: ''
+          }, {
+            id: 8,
+            title: 'signalr'
+          }]
         }
       })
       .then((res) => {
@@ -518,7 +639,7 @@ describe('saving', function () {
       });
   });
 
-  it('should update sprint with id=5, added, updated, deleted tickets', function () {
+  it('should update sprint with id=5, added, updated, deleted tickets', function() {
     return agent
       .post('/data/save/sprint/5')
       .set('Content-Type', 'application/json')
@@ -527,31 +648,27 @@ describe('saving', function () {
           staffed: true
         },
         tickets: {
-          added: [
-            {
-              title: '22.03',
-              sprint_id: 5,
-              project_id: 1
-            }, {
-              title: 'deep down below',
-              sprint_id: 5,
-              project_id: 1
-            }, {
-              title: 'liquid stranger',
-              sprint_id: 5,
-              project_id: 1
-            }
-          ],
-          updated: [
-            {
-              id: 4,
-              title: 'date error',
-              description: ''
-            }, {
-              id: 8,
-              title: 'to signalr or not to signalr?'
-            }
-          ],
+          added: [{
+            title: '22.03',
+            sprint_id: 5,
+            project_id: 1
+          }, {
+            title: 'deep down below',
+            sprint_id: 5,
+            project_id: 1
+          }, {
+            title: 'liquid stranger',
+            sprint_id: 5,
+            project_id: 1
+          }],
+          updated: [{
+            id: 4,
+            title: 'date error',
+            description: ''
+          }, {
+            id: 8,
+            title: 'to signalr or not to signalr?'
+          }],
           removed: [7, 10]
         }
       })
@@ -589,7 +706,199 @@ describe('saving', function () {
       });
   });
 
-  it('should update ticket with id=5', function () {
+  it('should update sprint with id=2 and 2 deleted contracts', function() {
+    return agent
+      .post('/data/save/sprint/2')
+      .set('Content-Type', 'application/json')
+      .send({
+        contracts: {
+          removed: [9, 10]
+        }
+      })
+      .then((res) => {
+        res.status.should.be.equal(200);
+
+        return models.Contract.count({
+          where: {
+            id: [9, 10]
+          }
+        }).then((x) => {
+          x.should.be.equal(0);
+        });
+      });
+  });
+
+  it('should update sprint with id=2 and 2 added contracts', function() {
+    return agent
+      .post('/data/save/sprint/2')
+      .set('Content-Type', 'application/json')
+      .send({
+        contracts: {
+          added: [{
+            days: 2,
+            user_id: 1,
+            sprint_id: 2
+          }, {
+            days: 4,
+            user_id: 2,
+            sprint_id: 2
+          }]
+        }
+      })
+      .then((res) => {
+        res.status.should.be.equal(200);
+        res.body.contracts.added.length.should.be.equal(2);
+
+        return models.Contract.findAll({
+          attributes: ['days'],
+          where: {
+            id: res.body.contracts.added
+          }
+        }).then((contracts) => {
+          contracts[0].days.should.be.equal(2);
+          contracts[1].days.should.be.equal(4);
+        });
+      });
+  });
+
+  it('should fail to update sprint with id=2 and add contracts with existing id', function() {
+    return agent
+      .post('/data/save/sprint/2')
+      .set('Content-Type', 'application/json')
+      .send({
+        root: {
+          factor: 100
+        },
+        contracts: {
+          added: [{
+            id: 7,
+            days: 2,
+            user_id: 1,
+            sprint_id: 2
+          }]
+        }
+      })
+      .then((res) => {
+        res.status.should.be.equal(500);
+
+        return Promise.all([
+          models.Contract.find({
+            attributes: ['days'],
+            where: {
+              id: 7
+            }
+          }).then((contract) => {
+            contract.days.should.be.equal(7);
+          }),
+          models.Sprint.find({
+            attributes: ['factor'],
+            where: {
+              id: 2
+            }
+          }).then((sprint) => {
+            sprint.factor.should.be.equal(65);
+          })
+        ]);
+      });
+  });
+
+  it('should update sprint with id=2 and 2 updated contracts', function() {
+    return agent
+      .post('/data/save/sprint/2')
+      .set('Content-Type', 'application/json')
+      .send({
+        contracts: {
+          updated: [{
+            id: 7,
+            days: 1,
+            user_id: 1
+          }, {
+            id: 8,
+            days: 1,
+            user_id: 2
+          }]
+        }
+      })
+      .then((res) => {
+        res.status.should.be.equal(200);
+
+        return Promise.all([
+          models.Contract.findById(7).then((contract) => {
+            contract.days.should.be.equal(1);
+            contract.user_id.should.be.equal(1);
+          }),
+          models.Contract.findById(8).then((contract) => {
+            contract.days.should.be.equal(1);
+            contract.user_id.should.be.equal(2);
+          })
+        ]);
+      });
+  });
+
+  it('should update sprint with id=2, added, updated, deleted contracts', function() {
+    return agent
+      .post('/data/save/sprint/5')
+      .set('Content-Type', 'application/json')
+      .send({
+        root: {
+          staffed: true
+        },
+        contracts: {
+          added: [{
+            days: 1,
+            user_id: 4,
+            sprint_id: 2
+          }, {
+            days: 2,
+            user_id: 5,
+            sprint_id: 2
+          }, {
+            days: 3,
+            user_id: 7,
+            sprint_id: 2
+          }],
+          updated: [{
+            id: 9,
+            days: 100
+          }],
+          removed: [10]
+        }
+      })
+      .then((res) => {
+        res.status.should.be.equal(200);
+        res.body.contracts.added.length.should.be.equal(3);
+
+        return Promise.all([
+          models.Sprint.find({
+            attributes: ['staffed'],
+            where: {
+              id: 2
+            }
+          }).then((sprint) => {
+            sprint.staffed.should.be.ok();
+          }),
+          models.Contract.findAll({
+            attributes: ['days'],
+            where: {
+              id: res.body.contracts.added
+            }
+          }).then((contracts) => {
+            contracts[0].days.should.be.equal(1);
+            contracts[1].days.should.be.equal(2);
+            contracts[2].days.should.be.equal(3);
+          }),
+          models.Contract.count({
+            where: {
+              id: [10]
+            }
+          }).then((x) => {
+            x.should.be.equal(0);
+          })
+        ]);
+      });
+  });
+
+  it('should update ticket with id=5', function() {
     return agent
       .post('/data/save/ticket/5')
       .set('Content-Type', 'application/json')
@@ -606,10 +915,30 @@ describe('saving', function () {
         });
       });
   });
+
+  it('should update contract with id=1', function() {
+    return agent
+      .post('/data/save/contract/1')
+      .set('Content-Type', 'application/json')
+      .send({
+        days: 15,
+        user_id: 3,
+        sprint_id: 3
+      })
+      .then((res) => {
+        res.status.should.be.equal(200);
+
+        return models.Contract.findById(1).then((contract) => {
+          contract.days.should.be.equal(15);
+          contract.user_id.should.be.equal(3);
+          contract.sprint_id.should.be.equal(3);
+        });
+      });
+  });
 });
 
-describe('deleting', function () {
-  it('should delete project with id=2', function () {
+describe('deleting', function() {
+  it('should delete project with id=2', function() {
     return agent
       .post('/data/delete/project/2')
       .set('Content-Type', 'application/json')
@@ -628,7 +957,7 @@ describe('deleting', function () {
       });
   });
 
-  it('should delete sprint with id=9', function () {
+  it('should delete sprint with id=9', function() {
     return agent
       .post('/data/delete/sprint/9')
       .set('Content-Type', 'application/json')
@@ -647,7 +976,7 @@ describe('deleting', function () {
       });
   });
 
-  it('should delete ticket with id=2', function () {
+  it('should delete ticket with id=2', function() {
     return agent
       .post('/data/delete/ticket/2')
       .set('Content-Type', 'application/json')
@@ -666,7 +995,7 @@ describe('deleting', function () {
       });
   });
 
-  it('should delete user with id=6', function () {
+  it('should delete user with id=6', function() {
     return agent
       .post('/data/delete/user/6')
       .set('Content-Type', 'application/json')
@@ -676,6 +1005,25 @@ describe('deleting', function () {
         res.body.should.be.equal(1);
 
         return models.User.count({
+          where: {
+            id: 6
+          }
+        }).then((count) => {
+          count.should.be.equal(0);
+        });
+      });
+  });
+
+  it('should delete contract with id=6', function() {
+    return agent
+      .post('/data/delete/contract/6')
+      .set('Content-Type', 'application/json')
+      .send()
+      .then((res) => {
+        res.status.should.be.equal(200);
+        res.body.should.be.equal(1);
+
+        return models.Contract.count({
           where: {
             id: 6
           }
