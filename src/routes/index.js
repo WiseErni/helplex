@@ -69,15 +69,13 @@ router.get('/data/load/tickets', (req, res, next) => {
   });
 
   models.Ticket.findAll({
-    include: [
-      {
-        model: models.User,
-        as: 'creator'
-      }, {
-        model: models.User,
-        as: 'developer'
-      }
-    ]
+    include: [{
+      model: models.User,
+      as: 'creator'
+    }, {
+      model: models.User,
+      as: 'developer'
+    }]
   }).then((result) => {
     res.json(normalize(result.map((x) => {
       return x.toJSON();
@@ -93,6 +91,24 @@ router.get('/data/load/users', (req, res, next) => {
         return x.toJSON();
       }), normalizr.arrayOf(user)));
     }).catch(next);
+});
+
+router.get('/data/load/contracts', (req, res, next) => {
+  const contract = new normalizr.Schema('contracts');
+  const user = new normalizr.Schema('users');
+  contract.define({
+    developer: user
+  });
+  models.Contract.findAll({
+    include: [{
+      model: models.User,
+      as: 'developer'
+    }]
+  }).then((contracts) => {
+    res.json(normalize(contracts.map((x) => {
+      return x.toJSON();
+    }), normalizr.arrayOf(contract)));
+  }).catch(next);
 });
 
 router.get('/data/load/project/:id', (req, res, next) => {
@@ -111,15 +127,13 @@ router.get('/data/load/project/:id', (req, res, next) => {
     where: {
       id: req.params.id
     },
-    include: [
-      {
-        model: models.Sprint,
-        as: 'sprints'
-      }, {
-        model: models.User,
-        as: 'creator'
-      }
-    ]
+    include: [{
+      model: models.Sprint,
+      as: 'sprints'
+    }, {
+      model: models.User,
+      as: 'creator'
+    }]
   }).then((result) => {
     if (!result) {
       throw new Error(`Can't load project with id=${req.params.id}`);
@@ -133,8 +147,10 @@ router.get('/data/load/sprint/:id', (req, res, next) => {
   const sprint = new normalizr.Schema('sprints');
   const ticket = new normalizr.Schema('tickets');
   const user = new normalizr.Schema('users');
+  const contract = new normalizr.Schema('contracts');
   sprint.define({
     tickets: normalizr.arrayOf(ticket),
+    contracts: normalizr.arrayOf(contract),
     creator: user
   });
   ticket.define({
@@ -142,28 +158,35 @@ router.get('/data/load/sprint/:id', (req, res, next) => {
     developer: user
   });
 
+  contract.define({
+    developer: user
+  });
+
   models.Sprint.find({
     where: {
       id: req.params.id
     },
-    include: [
-      {
-        model: models.Ticket,
-        as: 'tickets',
-        include: [
-          {
-            model: models.User,
-            as: 'creator'
-          }, {
-            model: models.User,
-            as: 'developer'
-          }
-        ]
-      }, {
+    include: [{
+      model: models.Ticket,
+      as: 'tickets',
+      include: [{
         model: models.User,
         as: 'creator'
-      }
-    ]
+      }, {
+        model: models.User,
+        as: 'developer'
+      }]
+    }, {
+      model: models.User,
+      as: 'creator'
+    }, {
+      model: models.Contract,
+      as: 'contracts',
+      include: [{
+        model: models.User,
+        as: 'developer'
+      }]
+    }]
   }).then((result) => {
     if (!result) {
       throw new Error(`Can't load sprint with id=${req.params.id}`);
@@ -185,15 +208,13 @@ router.get('/data/load/ticket/:id', (req, res, next) => {
     where: {
       id: req.params.id
     },
-    include: [
-      {
-        model: models.User,
-        as: 'creator'
-      }, {
-        model: models.User,
-        as: 'developer'
-      }
-    ]
+    include: [{
+      model: models.User,
+      as: 'creator'
+    }, {
+      model: models.User,
+      as: 'developer'
+    }]
   }).then((result) => {
     if (!result) {
       throw new Error(`Can't load ticket with id=${req.params.id}`);
@@ -215,6 +236,29 @@ router.get('/data/load/user/:id', (req, res, next) => {
     }
 
     res.json(normalize(result.toJSON(), user));
+  }).catch(next);
+});
+
+router.get('/data/load/contract/:id', (req, res, next) => {
+  const contract = new normalizr.Schema('contracts');
+  const user = new normalizr.Schema('users');
+  contract.define({
+    developer: user
+  });
+  models.Contract.find({
+    where: {
+      id: req.params.id
+    },
+    include: {
+      model: models.User,
+      as: 'developer'
+    }
+  }).then((result) => {
+    if (!result) {
+      throw new Error(`Can't load contract with id=${req.params.id}`);
+    }
+
+    res.json(normalize(result.toJSON(), contract));
   }).catch(next);
 });
 
@@ -241,15 +285,16 @@ router.post('/data/save/project/', (req, res, next) => {
 router.post('/data/save/sprint', (req, res, next) => {
   let root;
   let tickets = [];
-
+  let contracts = [];
   models.sequelize.transaction((t) => {
     return models.Sprint.create(req.body.root || {}, {
       transaction: t
     }).then((sprint) => {
+      let actions = [];
       root = sprint.id;
 
       if (req.body.tickets.added) {
-        return req.body.tickets.added.map((data) => {
+        actions = actions.concat(req.body.tickets.added.map((data) => {
           return () => {
             return models.Ticket.create(Object.assign({}, data, {
               sprint_id: root
@@ -259,14 +304,32 @@ router.post('/data/save/sprint', (req, res, next) => {
               tickets.push(ticket.id);
             });
           };
-        }).reduce((a, b) => {
-          return a.then(b);
-        }, Promise.resolve());
+        }));
       }
+
+      if (req.body.contracts.added) {
+        actions = actions.concat(req.body.contracts.added.map((data) => {
+          return () => {
+            return models.Contract.create(Object.assign({}, data, {
+              sprint_id: root
+            }), {
+              transaction: t
+            }).then((contract) => {
+              contracts.push(contract.id);
+            });
+          };
+        }));
+      }
+
+      return actions.reduce((a, b) => {
+        return a.then(b);
+      }, Promise.resolve());
     });
   }).then(() => {
     res.json({
-      root, tickets
+      root,
+      tickets,
+      contracts
     });
   }).catch(next);
 });
@@ -281,18 +344,28 @@ router.post('/data/save/ticket', (req, res, next) => {
   }).catch(next);
 });
 
-router.post('/data/save/user/:id', (req, res, next) => {
+router.post('/data/save/contract', (req, res, next) => {
   models.sequelize.transaction((t) => {
-    return models.User.update(req.body, {
-      where: {
-        id: req.params.id
-      },
+    return models.Contract.create(req.body, {
       transaction: t
     });
-  })
-  .then(() => {
-    res.json();
+  }).then((contract) => {
+    res.json(contract);
   }).catch(next);
+});
+
+router.post('/data/save/user/:id', (req, res, next) => {
+  models.sequelize.transaction((t) => {
+      return models.User.update(req.body, {
+        where: {
+          id: req.params.id
+        },
+        transaction: t
+      });
+    })
+    .then(() => {
+      res.json();
+    }).catch(next);
 });
 
 router.post('/data/save/project/:id', (req, res, next) => {
@@ -316,43 +389,84 @@ router.post('/data/save/sprint/:id', (req, res, next) => {
       },
       transaction: t
     }).then(() => {
-      let ids = [];
+      let tiketsIds = [];
+      let contractsIds = [];
       let actions = [];
 
-      if (req.body.tickets.removed) {
-        actions.push(() => {
-          return models.Ticket.destroy({
-            where: {
-              id: [req.body.tickets.removed]
-            },
-            transaction: t
-          });
-        });
-      }
-
-      if (req.body.tickets.added) {
-        actions = actions.concat(req.body.tickets.added.map((data, index) => {
-          return () => {
-            return models.Ticket.create(data, {
-              transaction: t
-            }).then((ticket) => {
-              ids[index] = ticket.id;
-            });
-          };
-        }));
-      }
-
-      if (req.body.tickets.updated) {
-        actions = actions.concat(req.body.tickets.updated.map((data) => {
-          return () => {
-            return models.Ticket.update(data, {
+      if(req.body.tickets){
+        if (req.body.tickets.removed) {
+          actions.push(() => {
+            return models.Ticket.destroy({
               where: {
-                id: data.id
+                id: [req.body.tickets.removed]
               },
               transaction: t
             });
-          };
-        }));
+          });
+        }
+
+        if (req.body.tickets.added) {
+          actions = actions.concat(req.body.tickets.added.map((data, index) => {
+            return () => {
+              return models.Ticket.create(data, {
+                transaction: t
+              }).then((ticket) => {
+                tiketsIds[index] = ticket.id;
+              });
+            };
+          }));
+        }
+
+        if (req.body.tickets.updated) {
+          actions = actions.concat(req.body.tickets.updated.map((data) => {
+            return () => {
+              return models.Ticket.update(data, {
+                where: {
+                  id: data.id
+                },
+                transaction: t
+              });
+            };
+          }));
+        }
+      }
+
+      if (req.body.contracts){
+        if (req.body.contracts.removed) {
+          actions.push(() => {
+            return models.Contract.destroy({
+              where: {
+                id: [req.body.contracts.removed]
+              },
+              transaction: t
+            });
+          });
+        }
+
+        if (req.body.contracts.added) {
+          actions = actions.concat(req.body.contracts.added.map((data, index) => {
+            return () => {
+              return models.Contract.create(data, {
+                transaction: t
+              }).then((contract) => {
+                contractsIds[index] = contract.id;
+              });
+            };
+          }));
+        }
+
+        if (req.body.contracts.updated) {
+          actions = actions.concat(req.body.contracts.updated.map((data) => {
+            return () => {
+              return models.Contract.update(data, {
+                where: {
+                  id: data.id
+                },
+                transaction: t
+              });
+            };
+          }));
+        }
       }
 
       return actions.reduce((a, b) => {
@@ -360,7 +474,10 @@ router.post('/data/save/sprint/:id', (req, res, next) => {
       }, Promise.resolve()).then(() => {
         return {
           tickets: {
-            added: ids
+            added: tiketsIds
+          },
+          contracts: {
+            added: contractsIds
           }
         };
       });
@@ -372,16 +489,30 @@ router.post('/data/save/sprint/:id', (req, res, next) => {
 
 router.post('/data/save/ticket/:id', (req, res, next) => {
   models.sequelize.transaction((t) => {
-    return models.Ticket.update(req.body, {
-      where: {
-        id: req.params.id
-      },
-      transaction: t
-    });
-  })
-  .then((id) => {
-    res.json(id);
-  }).catch(next);
+      return models.Ticket.update(req.body, {
+        where: {
+          id: req.params.id
+        },
+        transaction: t
+      });
+    })
+    .then((id) => {
+      res.json(id);
+    }).catch(next);
+});
+
+router.post('/data/save/contract/:id', (req, res, next) => {
+  models.sequelize.transaction((t) => {
+      return models.Contract.update(req.body, {
+        where: {
+          id: req.params.id
+        },
+        transaction: t
+      });
+    })
+    .then((id) => {
+      res.json(id);
+    }).catch(next);
 });
 
 router.post('/data/delete/project/:id', (req, res, next) => {
@@ -426,6 +557,19 @@ router.post('/data/delete/ticket/:id', (req, res, next) => {
 router.post('/data/delete/user/:id', (req, res, next) => {
   models.sequelize.transaction((t) => {
     return models.User.destroy({
+      where: {
+        id: req.params.id
+      },
+      transaction: t
+    });
+  }).then((count) => {
+    res.json(count);
+  }).catch(next);
+});
+
+router.post('/data/delete/contract/:id', (req, res, next) => {
+  models.sequelize.transaction((t) => {
+    return models.Contract.destroy({
       where: {
         id: req.params.id
       },
