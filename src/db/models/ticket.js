@@ -3,7 +3,7 @@ module.exports = function(sequelize, DataTypes) {
   var Ticket = sequelize.define('Ticket', {
     title: DataTypes.STRING,
     description: DataTypes.TEXT,
-    raiting: DataTypes.DECIMAL,
+    rating: DataTypes.DECIMAL,
     status: DataTypes.STRING,
     area: DataTypes.STRING,
     priority: DataTypes.INTEGER,

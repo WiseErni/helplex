@@ -12,11 +12,11 @@ const PATH = {
   MIGRATIONS: './src/db/migrations'
 };
 
-const test = function () {
+const test = function (parameters) {
   return gulp.src(PATH.TESTS, {
     read: false
   })
-  .pipe(mocha())
+  .pipe(mocha(parameters))
   .on('error', (e) => {
     console.log(e.toString());
     process.exit(1);
@@ -63,4 +63,10 @@ gulp.task('test', ['setup-migrate'], () => {
 
 gulp.task('test-sync', ['setup-sync'], () => {
   return test();
+});
+
+gulp.task('test-sync-wt', ['setup-sync'], () => {
+  return test({
+    timeout: 900000
+  });
 });

@@ -6,7 +6,22 @@ const express = require('express'),
   winston = require('winston'),
   routes = require('./routes'),
   app = express(),
-  seqLogger = require('./seqlogger');
+  seqLogger = require('./seqlogger'),
+  fs = require('fs'),
+  LOGS_DIR = './logs';
+
+if (!fs.existsSync(LOGS_DIR)) {
+  fs.mkdirSync(LOGS_DIR);
+}
+
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header(
+    'Access-Control-Allow-Headers',
+    'Origin, X-Requested-With, Content-Type, Accept'
+  );
+  next();
+});
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
@@ -17,7 +32,7 @@ app.use(expressWinston.logger({
   transports: [
     new winston.transports.File({
       json: false,
-      filename: './logs/express.log'
+      filename: `${LOGS_DIR}/express.log`
     })
   ]
 }));
@@ -33,7 +48,7 @@ app.use((err, req, res, next) => {
   }
 
   seqLogger.log('error', err.message, JSON.stringify(err), req.ip, req.originalUrl);
-  
+
   res.status(err.status || 500)
     .json({
       message: err.message,

@@ -7,7 +7,10 @@ module.exports = function(sequelize, DataTypes) {
       associate: function(models) {
         Contract.belongsTo(models.User, {
           as: 'developer',
-          foreignKey: 'user_id'
+          foreignKey: {
+            name: 'user_id',
+            allowNull: false
+          }
         });
       }
     }
